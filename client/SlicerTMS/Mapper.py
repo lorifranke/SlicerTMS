@@ -89,6 +89,7 @@ class Mapper:
         modelTransformerRasToIjk = vtk.vtkTransformFilter()
         transformRasToIjk = vtk.vtkTransform()
         m = vtk.vtkMatrix4x4()
+        efieldNode.GetRASToIJKMatrix(m)
         transformRasToIjk.SetMatrix(m)
         modelTransformerRasToIjk.SetTransform(transformRasToIjk)
         modelTransformerRasToIjk.SetInputConnection(brainNode.GetMeshConnection())
@@ -102,7 +103,7 @@ class Mapper:
         modelTransformerIjkToRas.SetInputConnection(probe.GetOutputPort())
         modelTransformerIjkToRas.Update()
 
-        
+
 
         brainNode.SetAndObserveMesh(modelTransformerIjkToRas.GetOutput())
 
