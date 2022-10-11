@@ -125,12 +125,12 @@ class Loader:
         loader.efieldNode.SetName('Efield_rot')
 
 
+        # # call one time
+        loader.callMapper()
 
-        # interaction hookup
+        # # interaction hookup
         loader.markupsPlaneNode.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, loader.callMapper)
 
-        # call one time
-        loader.callMapper()
 
         return loader
 
