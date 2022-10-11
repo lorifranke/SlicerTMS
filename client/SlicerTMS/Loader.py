@@ -3,6 +3,7 @@ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 
 import nibabel as nib
+import numpy as np
 
 
 class Loader:
@@ -97,7 +98,7 @@ class Loader:
 
 
         # load efield TODO remove nibabel
-        ev_nii = nib.load( slicer.util.loadVolume( os.path.join( loader.data_directory, loader._efield_file ) ) )
+        ev_nii = nib.load(  os.path.join( loader.data_directory, loader._efield_file ) ) 
         ev_nii_data = ev_nii.get_fdata()
         ev_nii_data = np.transpose(ev_nii_data, axes=(2, 1, 0, 3))
 
