@@ -5,6 +5,8 @@ from slicer.ScriptedLoadableModule import *
 import nibabel as nib
 import numpy as np
 
+import Mapper as M
+
 
 class Loader:
 
@@ -23,12 +25,17 @@ class Loader:
         self.modelNode = None
         self.coilNode = None
         self.skinNode = None
-        self.markupFiducials = None
+        self.markupsPlaneNode = None
 
         self.conductivityNode = None
         self.magfieldNode = None
         self.efieldNode = None
         self.efieldVectorNode = None
+
+    def callMapper(self, param1=None, param2=None):
+        '''
+        '''
+        M.Mapper.map(self)
 
 
     @staticmethod
@@ -72,18 +79,18 @@ class Loader:
         loader.coilNode.ApplyTransformMatrix(parentTransform.GetMatrix())
 
         # Add a plane to the scene
-        markupFiducials = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsPlaneNode', 'Coil')
-        markupFiducials.SetOrigin([0, 0, 110])
-        markupFiducials.SetNormalWorld([0, 0, -10])
-        markupFiducials.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
-        markupFiducials.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
-        markupFiducials.GetMarkupsDisplayNode().SetHandlesInteractive(True)
-        markupFiducials.GetMarkupsDisplayNode().SetRotationHandleVisibility(1)
-        markupFiducials.GetMarkupsDisplayNode().SetTranslationHandleVisibility(1)
-        markupFiducials.GetDisplayNode().SetSnapMode(slicer.vtkMRMLMarkupsDisplayNode.SnapModeToVisibleSurface)
-        markupFiducials.SetDisplayVisibility(1)
+        markupsPlaneNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsPlaneNode', 'Coil')
+        markupsPlaneNode.SetOrigin([0, 0, 110])
+        markupsPlaneNode.SetNormalWorld([0, 0, -10])
+        markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
+        markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
+        markupsPlaneNode.GetMarkupsDisplayNode().SetHandlesInteractive(True)
+        markupsPlaneNode.GetMarkupsDisplayNode().SetRotationHandleVisibility(1)
+        markupsPlaneNode.GetMarkupsDisplayNode().SetTranslationHandleVisibility(1)
+        markupsPlaneNode.GetDisplayNode().SetSnapMode(slicer.vtkMRMLMarkupsDisplayNode.SnapModeToVisibleSurface)
+        markupsPlaneNode.SetDisplayVisibility(1)
         
-        loader.markupFiducials = markupFiducials
+        loader.markupsPlaneNode = markupsPlaneNode
 
         loader.transformNode = slicer.mrmlScene.AddNode(slicer.vtkMRMLLinearTransformNode())
         loader.coilNode.SetAndObserveTransformNodeID(loader.transformNode.GetID())
@@ -118,10 +125,15 @@ class Loader:
         loader.efieldNode.SetName('Efield_rot')
 
 
+
+        # interaction hookup
+        loader.markupsPlaneNode.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, loader.callMapper)
+
+        # call one time
+        loader.callMapper()
+
         return loader
 
 
-        # interaction hookup
-        #self.markupFiducials.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, self.onHandlesModified)
 
 

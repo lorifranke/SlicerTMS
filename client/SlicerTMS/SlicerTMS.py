@@ -3,7 +3,7 @@ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 
 import Loader as L
-
+import Mapper as M
 
 
 class SlicerTMS(ScriptedLoadableModule):
@@ -39,11 +39,6 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.formLayout.addRow(self.loadExampleButton)
         self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
 
-
-
-        self.evecButton = qt.QPushButton("Show Evec", self.collapsibleButton)
-        self.formLayout.addRow(self.evecButton)
-        # self.evecButton.clicked.connect(self.onEvecButton)
 
         # disable OPENIGT tracker for now/testing
         # self.connectButton = qt.QPushButton("2. Start Tracker", self.collapsibleButton)
