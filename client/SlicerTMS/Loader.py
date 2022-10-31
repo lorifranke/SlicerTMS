@@ -1,7 +1,7 @@
 import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
-
+from slicerserver import Server
 import nibabel as nib
 import numpy as np
 
@@ -18,9 +18,9 @@ class Loader:
         self._coil_file = 'coil.stl'
         self._coil_scale = 3
         self._skin_file = 'skin.stl'
-        self._efield_file = 'efield.nii.gz'
-        self._conductivity_file = 'conductivity.nii.gz'
+        self._magnorm_file = 'magnorm.nii.gz'
         self._magfield_file = 'magfield.nii.gz'
+        self._conductivity_file = 'conductivity.nii.gz'
 
         self.modelNode = None
         self.coilNode = None
@@ -28,14 +28,24 @@ class Loader:
         self.markupsPlaneNode = None
 
         self.conductivityNode = None
+        self.magfieldGTNode = None
         self.magfieldNode = None
+        self.magnormNode = None
         self.efieldNode = None
-        self.efieldVectorNode = None
+        self.enormNode = None
+        self.coilDefaultMatrix = vtk.vtkMatrix4x4()
+
+        self.IGTLNode = None
+
+        self.showMag = False #switch between magnetic and electric field for visualization
+
 
     def callMapper(self, param1=None, param2=None):
         '''
         '''
         M.Mapper.map(self)
+
+
 
 
     @staticmethod
@@ -100,40 +110,62 @@ class Loader:
         # 4. Other stuff
         #
 
-        # load magfield
-        loader.magfieldNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._magfield_file ) )
+        # load magnorm (used for tesing and visualization, not useful for predicting E-field)
+        loader.magnormNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._magnorm_file ) )
+        loader.magnormNode.SetName('MagNorm')
+        loader.magnormNode.GetIJKToRASMatrix(loader.coilDefaultMatrix)
 
 
-        # load efield TODO remove nibabel
-        ev_nii = nib.load(  os.path.join( loader.data_directory, loader._efield_file ) ) 
-        ev_nii_data = ev_nii.get_fdata()
-        ev_nii_data = np.transpose(ev_nii_data, axes=(2, 1, 0, 3))
-
-        # transform 
-        m = vtk.vtkMatrix4x4()
-        loader.magfieldNode.GetIJKToRASMatrix(m)
-        slicer.util.addVolumeFromArray(ev_nii_data, ijkToRAS=m, name='Evec', nodeClassName='vtkMRMLVectorVolumeNode')
-        loader.efieldVectorNode = slicer.util.getNode('vtkMRMLVectorVolumeNode1') # TODO generalize
-
+        # load magvector as a GridTransformNode 
+        # the grid transform node (GTNode) only provide the 4D vtkImageData in the original space
+        # another 
+        loader.magfieldGTNode  = slicer.util.loadTransform(os.path.join( loader.data_directory, loader._magfield_file ))
 
         # load conductivity
         loader.conductivityNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._conductivity_file ) )
         
 
-        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
+        # creat magfield vector volumeNode for visualizing rotated RBG-coded magnetic vector field
+        loader.magfieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
+        loader.magfieldNode.SetSpacing(loader.conductivityNode.GetSpacing())
+        loader.magfieldNode.SetOrigin(loader.conductivityNode.GetOrigin())
+        loader.magfieldNode.SetName('MagVec')
+
+        # create nodes for received E-field data from pyigtl 
+        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
         loader.efieldNode.Copy(loader.magfieldNode)
-        loader.efieldNode.SetName('Efield_rot')
+        loader.efieldNode.SetName('EVec')
+
+        loader.enormNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
+        loader.enormNode.Copy(loader.conductivityNode)
+        loader.enormNode.SetName('ENorm')
 
 
+        # IGTL connections
+        loader.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
+        slicer.mrmlScene.AddNode(loader.IGTLNode)
+        # node should be visible in OpenIGTLinkIF module under connectors
+        loader.IGTLNode.SetName('Connector1')
+        # add command line stuff here
+        loader.IGTLNode.SetTypeClient('localhost', 18944)
+        # this will activate the the status of the connection:
+        loader.IGTLNode.Start()
+        loader.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
+        loader.IGTLNode.RegisterOutgoingMRMLNode(loader.magfieldNode)
+        loader.IGTLNode.PushOnConnect()
+        print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
+
+
+         
         # # call one time
         loader.callMapper()
 
         # # interaction hookup
         loader.markupsPlaneNode.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, loader.callMapper)
 
+        #slicer.mrmlScene.AddObserver(slicer.vtkMRMLScene.NodeAddedEvent, loader.onNodeRcvd)
 
         return loader
-
 
 
 

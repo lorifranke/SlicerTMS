@@ -34,10 +34,11 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
 
-
         self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
         self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
+
+
 
 
         # disable OPENIGT tracker for now/testing
@@ -81,5 +82,4 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.log.readOnly = True
         self.formLayout2.addRow(self.log)
         # self.logMessage('<p>Status: <i>Idle</i>\n')
-
 

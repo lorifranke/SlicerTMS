@@ -1,7 +1,9 @@
 import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
-
+import numpy as np
+from vtk.util.numpy_support import vtk_to_numpy
+from vtk.util.numpy_support import numpy_to_vtk
 import timeit
 
 class Mapper:
@@ -19,55 +21,80 @@ class Mapper:
             start = timeit.default_timer()
 
         # the update transform based on the old transfrom
-        matrix_orig = vtk.vtkMatrix4x4()
-        loader.magfieldNode.GetIJKToRASMatrix(matrix_orig)
 
-        matrix_current = vtk.vtkMatrix4x4()
-        matrix_current_inv = vtk.vtkMatrix4x4()
+        
+        # rotate the scalar magnetic field (magnorm)
 
-        loader.efieldNode.GetIJKToRASMatrix(matrix_current)
-        matrix_current_inv.Invert(matrix_current, matrix_current_inv)
+        if loader.showMag:  #only show scalar magnetic (magnorm) field
+            matrix_current = vtk.vtkMatrix4x4()
+            matrix_current_inv = vtk.vtkMatrix4x4()
+            loader.magnormNode.GetIJKToRASMatrix(matrix_current)
+            matrix_current_inv.Invert(matrix_current, matrix_current_inv)
+            matrix_update1 = vtk.vtkMatrix4x4()
+            matrix_update1.Multiply4x4(loader.coilDefaultMatrix, matrix_current_inv, matrix_update1)
+            matrix_update2 = vtk.vtkMatrix4x4()
+            matrix_update2.Multiply4x4(matrixFromFid, matrix_update1, matrix_update2)
+            # loader.efieldNode.Copy(loader.magNode)
+            loader.magnormNode.ApplyTransformMatrix(matrix_update2)
+            Mapper.mapElectricfieldToMesh(loader.magnormNode, loader.modelNode)
 
-        matrix_update1 = vtk.vtkMatrix4x4()
-        matrix_update1.Multiply4x4(matrix_orig, matrix_current_inv, matrix_update1)
+        else:  #predict the E-field and show the scalar E-field
 
-        matrix_update2 = vtk.vtkMatrix4x4()
-        matrix_update2.Multiply4x4(matrixFromFid, matrix_update1, matrix_update2)
-
-        # loader.efieldNode.Copy(loader.magNode)
-        loader.efieldNode.ApplyTransformMatrix(matrix_update2)
-
-
-
-        # resample
-        tfm_mov = vtk.vtkMatrix4x4()
-        loader.efieldNode.GetIJKToRASMatrix(tfm_mov)
-        tfm_mov_inv = vtk.vtkMatrix4x4()
-        tfm_mov.Invert(tfm_mov, tfm_mov_inv)
-        mov_img = loader.efieldNode.GetImageData()
+            DataVec = loader.magfieldGTNode.GetTransformFromParent().GetDisplacementGrid()
+            DataVec.SetOrigin(0, 0, 0)
+            DataVec.SetSpacing(1, 1, 1)
 
 
-        matrix_conductivity = vtk.vtkMatrix4x4()
-        loader.conductivityNode.GetIJKToRASMatrix(matrix_conductivity)
+            matrix_current = vtk.vtkMatrix4x4() # current transform of the magnetic vector field
+            matrix_current.Multiply4x4(matrixFromFid, loader.coilDefaultMatrix, matrix_current)
 
-        combined_tfm = vtk.vtkMatrix4x4()
-        tfm_mov.Multiply4x4(tfm_mov_inv, matrix_conductivity, combined_tfm)
+            matrix_current_inv = vtk.vtkMatrix4x4()
+            matrix_current_inv.Invert(matrix_current,matrix_current_inv)
+            combined_tfm = vtk.vtkMatrix4x4()
 
+            matrix_ref = vtk.vtkMatrix4x4()
+            loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
+            img_ref = loader.conductivityNode.GetImageData()
 
-        conductivity_image = loader.conductivityNode.GetImageData()
-        reslice = vtk.vtkImageReslice()
-        reslice.SetInputData(mov_img)
-        reslice.SetInformationInput(conductivity_image)
-        # print(reslice.SetInformationInput)
-        reslice.SetInterpolationModeToLinear()
-        reslice.SetResliceAxes(combined_tfm)
-        reslice.TransformInputSamplingOff()
-        reslice.Update()
+            matrix_ref.Multiply4x4(matrix_current_inv, matrix_ref, combined_tfm)
 
 
+            reslice = vtk.vtkImageReslice()
+            reslice.SetInputData(DataVec)
+            reslice.SetInformationInput(img_ref)
+            reslice.SetInterpolationModeToLinear()
+            reslice.SetResliceAxes(combined_tfm)
+            reslice.TransformInputSamplingOff()
+            reslice.Update()
+            DataOut = reslice.GetOutput()
 
-        brainNode = slicer.util.getNode('gm')
-        Mapper.mapElectricfieldToMesh(loader.efieldNode, brainNode)
+            xyz = DataOut.GetDimensions()
+            
+            # # rotate DataOut vectors
+            DataOut_np = vtk_to_numpy(DataOut.GetPointData().GetScalars())
+            # # transposed of the rotation matrix
+            RotMat_transp = np.array([[matrixFromFid.GetElement(0,0), matrixFromFid.GetElement(1,0),  matrixFromFid.GetElement(2,0)],
+                                       [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)],
+                                       [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)]])
+            # # rotate the vector field
+
+            DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
+            # # reshape the numpy array
+            DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
+            # # print(DataOut_np_rot.shape)
+
+            VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
+            # # print(VTK_array)
+
+            DataOut.GetPointData().SetScalars(VTK_array)
+            DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
+  
+            loader.magfieldNode.SetAndObserveImageData(DataOut)
+        
+            loader.IGTLNode.PushNode(loader.magfieldNode)
+
+
+
 
         # time in seconds:
         if time:
@@ -78,10 +105,10 @@ class Mapper:
 
 
     @staticmethod
-    def mapElectricfieldToMesh(efieldNode, brainNode):
+    def mapElectricfieldToMesh(scalarNode, brainNode):
 
         # get the scalar range from image scalars
-        rng = efieldNode.GetImageData().GetScalarRange()
+        rng = scalarNode.GetImageData().GetScalarRange()
         fMin = rng[0]
         fMax = rng[1]
 
@@ -89,13 +116,13 @@ class Mapper:
         modelTransformerRasToIjk = vtk.vtkTransformFilter()
         transformRasToIjk = vtk.vtkTransform()
         m = vtk.vtkMatrix4x4()
-        efieldNode.GetRASToIJKMatrix(m)
+        scalarNode.GetRASToIJKMatrix(m)
         transformRasToIjk.SetMatrix(m)
         modelTransformerRasToIjk.SetTransform(transformRasToIjk)
         modelTransformerRasToIjk.SetInputConnection(brainNode.GetMeshConnection())
 
         probe = vtk.vtkProbeFilter()
-        probe.SetSourceData(efieldNode.GetImageData())
+        probe.SetSourceData(scalarNode.GetImageData())
         probe.SetInputConnection(modelTransformerRasToIjk.GetOutputPort())
         # transform model back to ras
         modelTransformerIjkToRas = vtk.vtkTransformFilter()
@@ -118,7 +145,6 @@ class Mapper:
         brainNode.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         brainNode.GetDisplayNode().ScalarVisibilityOn()
         brainNode.GetDisplayNode().SetScalarRange(fMin, fMax)
-
 
 
 
