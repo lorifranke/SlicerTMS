@@ -91,6 +91,7 @@ while True:
         outputData = outputData.detach().numpy()
         outputData = outputData.transpose(2, 3, 4, 1, 0)
         outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
+        outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
         image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
         server.send_message(image_message)
 
