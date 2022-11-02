@@ -46,6 +46,9 @@ class Loader:
         M.Mapper.map(self)
 
 
+    def newImage(self, caller, event):
+        print('new pyigtl image received')
+        M.Mapper.modifyIncomingImage(self)
 
 
     @staticmethod
@@ -155,6 +158,18 @@ class Loader:
         loader.IGTLNode.PushOnConnect()
         print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
 
+
+        loader.pyigtlNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode', 'pyigtl_data')
+        observationTag = loader.pyigtlNode.AddObserver(slicer.vtkMRMLVectorVolumeNode.ImageDataModifiedEvent, loader.newImage)
+
+        # '''
+        # Get the incoming pyigtl data from cnn:
+        # '''
+        # loader.pyigtlImage = slicer.util.getNode('pyigtl_data')
+        # print(loader.pyigtlImage)
+        # loader.pyigtlImage.SetSpacing(2, 2, 2)
+        # # origin = loader.conductivityNode.GetOrigin()
+        # loader.pyigtlImage.ApplyTransformMatrix(matrix_ref)
 
          
         # # call one time

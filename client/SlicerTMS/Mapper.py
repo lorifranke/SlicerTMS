@@ -147,4 +147,9 @@ class Mapper:
         brainNode.GetDisplayNode().SetScalarRange(fMin, fMax)
 
 
-
+    @staticmethod
+    def modifyIncomingImage(loader):
+        matrix_ref = vtk.vtkMatrix4x4()
+        loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
+        loader.pyigtlNode.ApplyTransformMatrix(matrix_ref)
+        print(loader.pyigtlNode)

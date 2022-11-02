@@ -80,7 +80,7 @@ while True:
         magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
         #print(cond_data.shape)
         #print(magvec.shape)
-        
+
         inputData = np.concatenate((cond_data, magvec*100), axis=3)
         inputData = inputData.transpose(3, 0, 1, 2)
         size = np.array([1, 4,  xyz[0], xyz[1], xyz[2]])
@@ -96,6 +96,9 @@ while True:
 
 
 
+# client = pyigtl.OpenIGTLinkClient("127.0.0.1", 18944)
+# message = client.wait_for_message("pyigtl_data", timeout=5)
+# print(message)
 
 
 
