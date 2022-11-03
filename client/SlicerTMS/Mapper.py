@@ -152,4 +152,6 @@ class Mapper:
         matrix_ref = vtk.vtkMatrix4x4()
         loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
         loader.pyigtlNode.ApplyTransformMatrix(matrix_ref)
-        print(loader.pyigtlNode)
+        # this part will need to be done with the resampling (it only maps the incoming pyigtl image to the brain):
+        Mapper.mapElectricfieldToMesh(loader.pyigtlNode, loader.modelNode)
+
