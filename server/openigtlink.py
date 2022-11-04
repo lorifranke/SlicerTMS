@@ -52,6 +52,7 @@ out_channels = 3
 base_n_filter = 16
 torch.cuda.is_available = lambda : False
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('using', device)
 net = Modified3DUNet(in_channels, out_channels, base_n_filter)
 net = net.float()
 checkpoint = torch.load(model_path,map_location='cpu')
@@ -71,7 +72,7 @@ while True:
     if not server.is_connected():
         # Wait for client to connect
         sleep(0.01)
-        print('not connected')
+        # print('not connected')
         continue
 
     messages = server.get_latest_messages()
