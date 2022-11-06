@@ -50,9 +50,16 @@ model_path = os.path.join(script_path,'../model/isomodel.pth.tar')
 in_channels = 4
 out_channels = 3
 base_n_filter = 16
-torch.cuda.is_available = lambda : False
+
+# needs nvidia driver version 510 for cuda 11.6
+# deactivates cuda:
+# torch.cuda.is_available = lambda : False
+use_cuda = torch.cuda.is_available()
+print(use_cuda)
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('using', device)
+
 net = Modified3DUNet(in_channels, out_channels, base_n_filter)
 net = net.float()
 checkpoint = torch.load(model_path,map_location='cpu')
