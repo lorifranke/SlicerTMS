@@ -151,6 +151,7 @@ class Loader:
         loader.IGTLNode.SetName('Connector1')
         # add command line stuff here
         loader.IGTLNode.SetTypeClient('localhost', 18944)
+        # loader.IGTLNode.SetTypeClient('loraine.franke001@vampire2.verymad.net', 18944)
         # this will activate the the status of the connection:
         loader.IGTLNode.Start()
         loader.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
