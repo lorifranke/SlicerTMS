@@ -27,7 +27,7 @@ import time
 from numpy import linalg as LA
 
 
-server = pyigtl.OpenIGTLinkServer(port=18944, local_server=False)
+server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
 
 timestep = 0
 script_path = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +55,7 @@ base_n_filter = 16
 
 # needs nvidia driver version 510 for cuda 11.6
 # deactivates cuda:
-# torch.cuda.is_available = lambda : False
+torch.cuda.is_available = lambda : False
 use_cuda = torch.cuda.is_available()
 print(use_cuda)
 
@@ -65,8 +65,8 @@ print('using', device)
 net = Modified3DUNet(in_channels, out_channels, base_n_filter)
 net = net.float()
 net = net.to(device)
-# checkpoint = torch.load(model_path,map_location='cpu')
-checkpoint = torch.load(model_path,map_location='cuda:0')
+checkpoint = torch.load(model_path,map_location='cpu')
+# checkpoint = torch.load(model_path,map_location='cuda:0')
 new_state_dict = OrderedDict()
 for k, v in checkpoint['model_state_dict'].items():
     #name = k 
@@ -111,7 +111,7 @@ while True:
         outputData = outputData.transpose(2, 3, 4, 1, 0)
         outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
         outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
-        inputData = LA.norm(outputData, axis = 3)
+        outputData = LA.norm(outputData, axis = 3)
         image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
         server.send_message(image_message)
 
