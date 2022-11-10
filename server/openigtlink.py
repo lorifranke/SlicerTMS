@@ -23,6 +23,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from collections import OrderedDict
 from model import Modified3DUNet
+from numpy import linalg as LA
 import time
 
 
@@ -108,6 +109,7 @@ while True:
         outputData = outputData.transpose(2, 3, 4, 1, 0)
         outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
         outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
+        outputData = LA.norm(outputData, axis=3)
         image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
         server.send_message(image_message)
 
