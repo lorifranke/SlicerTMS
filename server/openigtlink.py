@@ -23,11 +23,11 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from collections import OrderedDict
 from model import Modified3DUNet
-from numpy import linalg as LA
 import time
+from numpy import linalg as LA
 
 
-server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
+server = pyigtl.OpenIGTLinkServer(port=18944, local_server=False)
 
 timestep = 0
 script_path = os.path.dirname(os.path.abspath(__file__))
@@ -54,19 +54,19 @@ out_channels = 3
 base_n_filter = 16
 
 # needs nvidia driver version 510 for cuda 11.6
-# deactivates cuda uncomment to use cpu:
+# deactivates cuda:
 # torch.cuda.is_available = lambda : False
 use_cuda = torch.cuda.is_available()
 print(use_cuda)
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print('using', device)
 
 net = Modified3DUNet(in_channels, out_channels, base_n_filter)
 net = net.float()
-checkpoint = torch.load(model_path,map_location='cpu')
-# loading all tensors onto GPU 0:
-# checkpoint = torch.load(model_path,map_location='cuda:0')
+net = net.to(device)
+# checkpoint = torch.load(model_path,map_location='cpu')
+checkpoint = torch.load(model_path,map_location='cuda:0')
 new_state_dict = OrderedDict()
 for k, v in checkpoint['model_state_dict'].items():
     #name = k 
@@ -88,10 +88,6 @@ while True:
 
     messages = server.get_latest_messages()
     for message in messages:
-
-        #get start time
-        st = time.time()
-
         magvec = message.image
         magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
         #print(cond_data.shape)
@@ -102,23 +98,26 @@ while True:
         size = np.array([1, 4,  xyz[0], xyz[1], xyz[2]])
         inputData = np.reshape(inputData,size)
         inputData = np.double(inputData)
-        inputData = torch.from_numpy(inputData)
-        # call the network:
-        outputData = net(inputData.float())
-        outputData = outputData.detach().numpy()
-        outputData = outputData.transpose(2, 3, 4, 1, 0)
-        outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
-        outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
-        outputData = LA.norm(outputData, axis=3)
-        image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
-        server.send_message(image_message)
-
+        #get start time
+        st = time.time()
+        inputData_gpu = torch.from_numpy(inputData).to(device)
         # get the end time
         et = time.time()
 
+        outputData = net(inputData_gpu.float())
+        outputData = outputData.cpu()
+        outputData = outputData.detach().numpy()
+	
+        outputData = outputData.transpose(2, 3, 4, 1, 0)
+        outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
+        outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
+        inputData = LA.norm(outputData, axis = 3)
+        image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
+        server.send_message(image_message)
+
         # get the execution time
         elapsed_time = et - st
-        print('Execution time:', elapsed_time, 'seconds')
+        print('Execution time CNN:', elapsed_time, 'seconds')
 
 
 
