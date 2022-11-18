@@ -18,12 +18,13 @@ class SlicerTMS(ScriptedLoadableModule):
         self.parent = parent
 
 
-
 class SlicerTMSWidget(ScriptedLoadableModuleWidget):
     def __init__(self, parent=None):
         ScriptedLoadableModuleWidget.__init__(self, parent)
         self.guiMessages = True
         self.consoleMessages = True
+        self.showGMButton = None
+
 
     def setup(self):
         ScriptedLoadableModuleWidget.setup(self)
@@ -34,11 +35,22 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
 
-        self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
+        self.loadExampleButton = qt.QPushButton("Load Example 1", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
         self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
 
+        self.loadExampleButton = qt.QPushButton("Load Example 2", self.collapsibleButton)
+        self.formLayout.addRow(self.loadExampleButton)
+        self.loadExampleButton.clicked.connect(L.Loader.loadExample2)
 
+        self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
+        self.showGMButton.checked = True
+        self.formLayout.addRow(self.showGMButton)
+
+        # self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
+        # # self.fiberButton.checked = True
+        # self.formLayout.addRow(self.fiberButton)
+        # self.fiberButton.stateChanged.connect(L.Loader.loadFibers)
 
 
         # disable OPENIGT tracker for now/testing
