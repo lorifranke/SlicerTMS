@@ -31,20 +31,7 @@ server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
 
 timestep = 0
 script_path = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(script_path, '../data/Example2/')
-cond_path = os.path.join(data_path, 'conductivity.nii.gz')
-print(cond_path)
-cond = nib.load(cond_path)
-cond_data = cond.get_fdata()
-
-xyz = cond_data.shape
-cond_data = np.reshape(cond_data,([xyz[0], xyz[1], xyz[2], 1]))
-print(cond_data.shape)
-
-
 model_path = os.path.join(script_path,'../model/model_iso.pth.tar')
-
-
 
 # load CNN model
 in_channels = 4
@@ -55,16 +42,19 @@ base_n_filter = 16
 # deactivates cuda uncomment to use cpu:
 # torch.cuda.is_available = lambda : False
 use_cuda = torch.cuda.is_available()
-print(use_cuda)
+print('Cuda available: ', use_cuda)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print('using', device)
+print('Using device:', device)
 
 net = Modified3DUNet(in_channels, out_channels, base_n_filter)
 net = net.float()
-checkpoint = torch.load(model_path,map_location='cpu')
-# loading all tensors onto GPU 0:
-# checkpoint = torch.load(model_path,map_location='cuda:0')
+if torch.cuda.is_available():
+    # loading all tensors onto GPU 0:
+    checkpoint = torch.load(model_path, map_location='cuda:0')
+else:
+    checkpoint = torch.load(model_path, map_location='cpu')
+
 new_state_dict = OrderedDict()
 for k, v in checkpoint['model_state_dict'].items():
     #name = k 
@@ -74,6 +64,18 @@ for k, v in checkpoint['model_state_dict'].items():
 net.load_state_dict(new_state_dict)  
 
 
+client_path = os.path.join(script_path, '../client/SlicerTMS/')
+print(client_path)
+data_path = os.path.join(script_path, '../data/')
+ex_path = os.path.join(script_path, '../data/Example2/')
+cond_path = os.path.join(ex_path, 'conductivity.nii.gz')
+# print(cond_path)
+cond = nib.load(cond_path)
+cond_data = cond.get_fdata()
+
+xyz = cond_data.shape
+cond_data = np.reshape(cond_data,([xyz[0], xyz[1], xyz[2], 1]))
+print('Image shape:', cond_data.shape)
 
 
 
@@ -86,38 +88,32 @@ while True:
 
     messages = server.get_latest_messages()
     for message in messages:
-
-        #get start time
-        st = time.time()
-
         magvec = message.image
         magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
-        #print(cond_data.shape)
-        #print(magvec.shape)
 
         inputData = np.concatenate((cond_data, magvec*100), axis=3)
         inputData = inputData.transpose(3, 0, 1, 2)
         size = np.array([1, 4,  xyz[0], xyz[1], xyz[2]])
         inputData = np.reshape(inputData,size)
         inputData = np.double(inputData)
-        inputData = torch.from_numpy(inputData)
-        # call the network:
-        outputData = net(inputData.float())
+
+        #get start time to test CNN execution time
+        st = time.time()
+        inputData_gpu = torch.from_numpy(inputData).to(device)
+        # get the end time
+        et = time.time()
+
+        outputData = net(inputData_gpu.float())
+        outputData = outputData.cpu()
         outputData = outputData.detach().numpy()
         outputData = outputData.transpose(2, 3, 4, 1, 0)
         outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
         outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
-        outputData = LA.norm(outputData, axis=3)
-
+        outputData = LA.norm(outputData, axis = 3)
         image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
         server.send_message(image_message)
 
-        # get the end time
-        et = time.time()
-
         # get the execution time
         elapsed_time = et - st
-        print('Execution time:', elapsed_time, 'seconds')
-
-
+        print('Execution time CNN:', elapsed_time, 'seconds')
 
