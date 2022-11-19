@@ -64,7 +64,7 @@ for k, v in checkpoint['model_state_dict'].items():
 net.load_state_dict(new_state_dict)  
 
 
-client_path = os.path.join(script_path, '../client/SlicerTMS/')
+client_path = os.path.join(script_path, '../client/SlicerTMS/SlicerTMS.py')
 print(client_path)
 data_path = os.path.join(script_path, '../data/')
 ex_path = os.path.join(script_path, '../data/Example2/')

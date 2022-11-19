@@ -195,10 +195,9 @@ class Loader:
         return loader
 
 
-
     @staticmethod
-    def loadExample2(self):
-
+    def loadExample2(self, param1):
+        print(param1)
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example2/')
 
         loader = Loader(data_directory)
