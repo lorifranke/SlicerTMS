@@ -4,6 +4,8 @@ from slicer.ScriptedLoadableModule import *
 # from slicerserver import Server
 # import nibabel as nib
 import numpy as np
+# from subprocess import check_output
+import subprocess
 
 import Mapper as M
 import SlicerTMS as S
@@ -14,7 +16,6 @@ class Loader:
     def __init__(self, data_directory):
 
         self.data_directory = data_directory
-
         self._graymatter_file = 'gm.stl'
         self._fiber_file = 'fibers.vtk'
         self._coil_file = 'coil.stl'
@@ -42,7 +43,6 @@ class Loader:
 
         self.showMag = False #switch between magnetic and electric field for visualization
 
-
     def callMapper(self, param1=None, param2=None):
         '''
         '''
@@ -64,6 +64,11 @@ class Loader:
 
     @staticmethod
     def loadExample1(self):
+
+        # need to check if another process is running, if yes terminate
+        # this should start the server for the CNN:
+        command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example1/"], shell=True, env=slicer.util.startupEnvironment())
+        print(command_result)
 
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example1/')
 
@@ -196,8 +201,11 @@ class Loader:
 
 
     @staticmethod
-    def loadExample2(self, param1):
-        print(param1)
+    def loadExample2(self):
+        command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example2/"], shell=True, env=slicer.util.startupEnvironment())
+        print(command_result)
+        print('Example2')
+
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example2/')
 
         loader = Loader(data_directory)

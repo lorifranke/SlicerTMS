@@ -45,9 +45,9 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
 
         self.loadExampleButton2 = qt.QPushButton("Load Example 2", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton2)
-        param1 = True
-        self.loadExampleButton2.clicked.connect(lambda: L.Loader.loadExample2(self,param1))
-        # self.loadExampleButton2.clicked.connect(L.Loader.loadExample2)
+        # param1 = True
+        # self.loadExampleButton2.clicked.connect(lambda: L.Loader.loadExample2(self,param1))
+        self.loadExampleButton2.clicked.connect(L.Loader.loadExample2)
 
         self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
         self.showGMButton.checked = True
