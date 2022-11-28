@@ -35,19 +35,18 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
 
-        script_path = os.path.dirname(os.path.abspath(__file__))
-        client_path = os.path.join(script_path, '../../server/server.py')
-        print(client_path)
+        # script_path = os.path.dirname(os.path.abspath(__file__))
+        # client_path = os.path.join(script_path, '../../server/server.py')
 
-        self.loadExampleButton1 = qt.QPushButton("Load Example 1", self.collapsibleButton)
-        self.formLayout.addRow(self.loadExampleButton1)
-        self.loadExampleButton1.clicked.connect(L.Loader.loadExample1)
+        self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
+        self.formLayout.addRow(self.loadExampleButton)
+        self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
 
-        self.loadExampleButton2 = qt.QPushButton("Load Example 2", self.collapsibleButton)
-        self.formLayout.addRow(self.loadExampleButton2)
-        # param1 = True
-        # self.loadExampleButton2.clicked.connect(lambda: L.Loader.loadExample2(self,param1))
-        self.loadExampleButton2.clicked.connect(L.Loader.loadExample2)
+        # self.loadExampleButton2 = qt.QPushButton("Load Example 2", self.collapsibleButton)
+        # self.formLayout.addRow(self.loadExampleButton2)
+        # # param1 = True
+        # # self.loadExampleButton2.clicked.connect(lambda: L.Loader.loadExample2(self,param1))
+        # self.loadExampleButton2.clicked.connect(L.Loader.loadExample2)
 
         self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
         self.showGMButton.checked = True

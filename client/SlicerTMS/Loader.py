@@ -65,16 +65,16 @@ class Loader:
     @staticmethod
     def loadExample1(self):
 
-        # need to check if another process is running, if yes terminate
-        # this should start the server for the CNN:
-        command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example1/"], shell=True, env=slicer.util.startupEnvironment())
-        print(command_result)
-
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example1/')
 
         loader = Loader(data_directory)
 
         slicer.mrmlScene.Clear()
+
+        # executing commands from inside SLicer: this should start the server for the CNN (need to check if another process is running, if yes terminate)
+        # command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example1/"], shell=True, env=slicer.util.startupEnvironment())
+        # command_result.wait()
+        # poll = command_result.poll()
 
         #
         # 1. Brain:
@@ -202,10 +202,6 @@ class Loader:
 
     @staticmethod
     def loadExample2(self):
-        command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example2/"], shell=True, env=slicer.util.startupEnvironment())
-        print(command_result)
-        print('Example2')
-
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example2/')
 
         loader = Loader(data_directory)
@@ -327,3 +323,4 @@ class Loader:
 
         return loader
         
+

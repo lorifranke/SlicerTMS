@@ -30,12 +30,14 @@ import time
 class ServerTMS():
     def __init__(self, file = None):
         self.setFile(file)
+        print(file)
 
         server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
 
         timestep = 0
         script_path = os.path.dirname(os.path.abspath(__file__))
-        model_path = os.path.join(script_path,'../model/model_iso.pth.tar')
+        # model_path = os.path.join(script_path,'../model/model_iso.pth.tar')
+        model_path = os.path.join(script_path,str(file) + 'model.pth.tar')
 
         # load CNN model
         in_channels = 4
@@ -112,6 +114,7 @@ class ServerTMS():
                 outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
                 outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
                 outputData = LA.norm(outputData, axis = 3)
+
                 image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
                 server.send_message(image_message)
 
