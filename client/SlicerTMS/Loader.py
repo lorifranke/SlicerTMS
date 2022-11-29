@@ -64,9 +64,8 @@ class Loader:
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example1/')
 
         loader = Loader(data_directory)
-        print(param1)
 
-        slicer.mrmlScene.Clear()
+        # slicer.mrmlScene.Clear()
 
         # executing commands from inside SLicer: this should start the server for the CNN (need to check if another process is running, if yes terminate)
         # command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example1/"], shell=True, env=slicer.util.startupEnvironment())
@@ -167,24 +166,18 @@ class Loader:
         loader.enormNode.SetName('ENorm')
 
 
-        # # IGTL connections
-        # loader.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
-        # slicer.mrmlScene.AddNode(loader.IGTLNode)
-        # # node should be visible in OpenIGTLinkIF module under connectors
-        # loader.IGTLNode.SetName('Connector1')
-        # # add command line stuff here
-        # loader.IGTLNode.SetTypeClient('localhost', 18944)
-        # # this will activate the the status of the connection:
-        # loader.IGTLNode.Start()
-        # loader.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
-        # loader.IGTLNode.RegisterOutgoingMRMLNode(loader.magfieldNode)
-        # loader.IGTLNode.PushOnConnect()
-        # print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
-
-        # IGTL now created in SlicerTMS.py!!
-        S.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
-        S.IGTLNode.RegisterOutgoingMRMLNode(loader.magfieldNode)
-        S.IGTLNode.PushOnConnect()
+        # IGTL connections
+        loader.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
+        slicer.mrmlScene.AddNode(loader.IGTLNode)
+        # node should be visible in OpenIGTLinkIF module under connectors
+        loader.IGTLNode.SetName('CNN_Connector')
+        # add command line stuff here
+        loader.IGTLNode.SetTypeClient('localhost', 18944)
+        # this will activate the the status of the connection:
+        loader.IGTLNode.Start()
+        loader.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
+        loader.IGTLNode.RegisterOutgoingMRMLNode(loader.magfieldNode)
+        loader.IGTLNode.PushOnConnect()
         print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
 
         # observer for the icoming IGTL image data

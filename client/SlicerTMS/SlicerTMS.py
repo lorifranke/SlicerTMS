@@ -26,7 +26,6 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.consoleMessages = True
         self.showGMButton = None
         self.param1 = None
-        self.IGTLNode = None
 
 
     def setup(self):
@@ -36,23 +35,21 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         # IGTL connections
         self.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
         slicer.mrmlScene.AddNode(self.IGTLNode)
-        # node should be visible in OpenIGTLinkIF module under connectors
-        self.IGTLNode.SetName('Connector')
-        # add command line stuff here
-        self.IGTLNode.SetTypeClient('localhost', 18944)
+        self.IGTLNode.SetName('TextConnector')
+        self.IGTLNode.SetTypeClient('localhost', 18945)
         # this will activate the the status of the connection:
         self.IGTLNode.Start()
-        self.textNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLTextNode', 'TextMessage')
-        self.IGTLNode.RegisterIncomingMRMLNode(self.textNode)
+        # self.IGTLNode.RegisterIncomingMRMLNode(self.textNode)
         self.IGTLNode.PushOnConnect()
-        # self.textNode.SetForceCreateStorageNode(1)
+
+        self.textNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLTextNode', 'TextMessage')
+        self.textNode.SetForceCreateStorageNode(1)
+        observer = self.textNode.AddObserver(slicer.vtkMRMLTextNode.TextModifiedEvent, self.newText)
+
         # self.t = slicer.util.getNode('TextMessage')
         self.t = slicer.mrmlScene.GetNodeByID('vtkMRMLTextNode1')
-        print(self.t)
         self.param1 = self.textNode.GetText() # this works inside Slicer with the python interactor but not here, why???
-        print('TEXT:')
-        print(self.param1)
-
+        print('TEXT' + self.param1)
 
         self.collapsibleButton = ctk.ctkCollapsibleButton()
         self.collapsibleButton.text = "TMS Visualization"
@@ -122,3 +119,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.formLayout2.addRow(self.log)
         # self.logMessage('<p>Status: <i>Idle</i>\n')
 
+
+    def newText(self, caller, event):
+        print('incoming text:')
+        print(self.param1)
