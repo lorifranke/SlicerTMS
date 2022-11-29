@@ -25,73 +25,73 @@ class Mapper:
         
         # rotate the scalar magnetic field (magnorm)
 
-        if loader.showMag:  #only show scalar magnetic (magnorm) field
-            matrix_current = vtk.vtkMatrix4x4()
-            matrix_current_inv = vtk.vtkMatrix4x4()
-            loader.magnormNode.GetIJKToRASMatrix(matrix_current)
-            matrix_current_inv.Invert(matrix_current, matrix_current_inv)
-            matrix_update1 = vtk.vtkMatrix4x4()
-            matrix_update1.Multiply4x4(loader.coilDefaultMatrix, matrix_current_inv, matrix_update1)
-            matrix_update2 = vtk.vtkMatrix4x4()
-            matrix_update2.Multiply4x4(matrixFromFid, matrix_update1, matrix_update2)
-            # loader.efieldNode.Copy(loader.magNode)
-            loader.magnormNode.ApplyTransformMatrix(matrix_update2)
-            Mapper.mapElectricfieldToMesh(loader.magnormNode, loader.modelNode)
+        # if loader.showMag:  #only show scalar magnetic (magnorm) field
+        #     matrix_current = vtk.vtkMatrix4x4()
+        #     matrix_current_inv = vtk.vtkMatrix4x4()
+        #     loader.magnormNode.GetIJKToRASMatrix(matrix_current)
+        #     matrix_current_inv.Invert(matrix_current, matrix_current_inv)
+        #     matrix_update1 = vtk.vtkMatrix4x4()
+        #     matrix_update1.Multiply4x4(loader.coilDefaultMatrix, matrix_current_inv, matrix_update1)
+        #     matrix_update2 = vtk.vtkMatrix4x4()
+        #     matrix_update2.Multiply4x4(matrixFromFid, matrix_update1, matrix_update2)
+        #     # loader.efieldNode.Copy(loader.magNode)
+        #     loader.magnormNode.ApplyTransformMatrix(matrix_update2)
+        #     Mapper.mapElectricfieldToMesh(loader.magnormNode, loader.modelNode)
 
-        else:  #predict the E-field and show the scalar E-field
+        # else:  #predict the E-field and show the scalar E-field
 
-            DataVec = loader.magfieldGTNode.GetTransformFromParent().GetDisplacementGrid()
-            DataVec.SetOrigin(0, 0, 0)
-            DataVec.SetSpacing(1, 1, 1)
-
-
-            matrix_current = vtk.vtkMatrix4x4() # current transform of the magnetic vector field
-            matrix_current.Multiply4x4(matrixFromFid, loader.coilDefaultMatrix, matrix_current)
-
-            matrix_current_inv = vtk.vtkMatrix4x4()
-            matrix_current_inv.Invert(matrix_current,matrix_current_inv)
-            combined_tfm = vtk.vtkMatrix4x4()
-
-            matrix_ref = vtk.vtkMatrix4x4()
-            loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
-            img_ref = loader.conductivityNode.GetImageData()
-
-            matrix_ref.Multiply4x4(matrix_current_inv, matrix_ref, combined_tfm)
+        DataVec = loader.magfieldGTNode.GetTransformFromParent().GetDisplacementGrid()
+        DataVec.SetOrigin(0, 0, 0)
+        DataVec.SetSpacing(1, 1, 1)
 
 
-            reslice = vtk.vtkImageReslice()
-            reslice.SetInputData(DataVec)
-            reslice.SetInformationInput(img_ref)
-            reslice.SetInterpolationModeToLinear()
-            reslice.SetResliceAxes(combined_tfm)
-            reslice.TransformInputSamplingOff()
-            reslice.Update()
-            DataOut = reslice.GetOutput()
+        matrix_current = vtk.vtkMatrix4x4() # current transform of the magnetic vector field
+        matrix_current.Multiply4x4(matrixFromFid, loader.coilDefaultMatrix, matrix_current)
 
-            xyz = DataOut.GetDimensions()
-            
-            # # rotate DataOut vectors
-            DataOut_np = vtk_to_numpy(DataOut.GetPointData().GetScalars())
-            # # transposed of the rotation matrix
-            RotMat_transp = np.array([[matrixFromFid.GetElement(0,0), matrixFromFid.GetElement(1,0),  matrixFromFid.GetElement(2,0)],
-                                       [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)],
-                                       [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)]])
-            # # rotate the vector field
+        matrix_current_inv = vtk.vtkMatrix4x4()
+        matrix_current_inv.Invert(matrix_current,matrix_current_inv)
+        combined_tfm = vtk.vtkMatrix4x4()
 
-            DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
-            # # reshape the numpy array
-            DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
-            # # print(DataOut_np_rot.shape)
+        matrix_ref = vtk.vtkMatrix4x4()
+        loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
+        img_ref = loader.conductivityNode.GetImageData()
 
-            VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
-            # # print(VTK_array)
+        matrix_ref.Multiply4x4(matrix_current_inv, matrix_ref, combined_tfm)
 
-            DataOut.GetPointData().SetScalars(VTK_array)
-            DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
-  
-            loader.magfieldNode.SetAndObserveImageData(DataOut)
+
+        reslice = vtk.vtkImageReslice()
+        reslice.SetInputData(DataVec)
+        reslice.SetInformationInput(img_ref)
+        reslice.SetInterpolationModeToLinear()
+        reslice.SetResliceAxes(combined_tfm)
+        reslice.TransformInputSamplingOff()
+        reslice.Update()
+        DataOut = reslice.GetOutput()
+
+        xyz = DataOut.GetDimensions()
         
-            loader.IGTLNode.PushNode(loader.magfieldNode)
+        # # rotate DataOut vectors
+        DataOut_np = vtk_to_numpy(DataOut.GetPointData().GetScalars())
+        # # transposed of the rotation matrix
+        RotMat_transp = np.array([[matrixFromFid.GetElement(0,0), matrixFromFid.GetElement(1,0),  matrixFromFid.GetElement(2,0)],
+                                   [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)],
+                                   [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)]])
+        # # rotate the vector field
+
+        DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
+        # # reshape the numpy array
+        DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
+        # # print(DataOut_np_rot.shape)
+
+        VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
+        # # print(VTK_array)
+
+        DataOut.GetPointData().SetScalars(VTK_array)
+        DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
+
+        loader.magfieldNode.SetAndObserveImageData(DataOut)
+    
+        loader.IGTLNode.PushNode(loader.magfieldNode)
 
 
 

@@ -25,7 +25,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.guiMessages = True
         self.consoleMessages = True
         self.showGMButton = None
-        self.param1 = None
+        self.example_path = None
 
 
     def setup(self):
@@ -47,23 +47,21 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         observer = self.textNode.AddObserver(slicer.vtkMRMLTextNode.TextModifiedEvent, self.newText)
 
     def newText(self, caller, event):
-        # self.t = slicer.util.getNode('TextMessage')
         self.t = slicer.mrmlScene.GetNodeByID('vtkMRMLTextNode1')
-        self.param1 = self.t.GetText() # this works inside Slicer with the python interactor but not here, why???
-        self.setupButtons(self.param1)
+        self.example_path = self.t.GetText()
+        self.setupButtons(self.example_path)
 
-    def setupButtons(self, param1):
+    def setupButtons(self, example_path):
         self.collapsibleButton = ctk.ctkCollapsibleButton()
         self.collapsibleButton.text = "TMS Visualization"
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
 
-        self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
+        self.loadExampleButton = qt.QPushButton("Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
 
-        # self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
-        print(self.param1)
-        self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample1(self, self.param1))
+        # self.loadExampleButton.clicked.connect(L.Loader.loadExample)
+        self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self, self.example_path))
 
         self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
         self.showGMButton.checked = True
@@ -87,6 +85,8 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
 
         self.layout.addStretch(1)
 
+
+        ### WEBSERVER ####
         self.collapsibleButton2 = ctk.ctkCollapsibleButton()
         self.collapsibleButton2.text = "WebServer"
         self.layout.addWidget(self.collapsibleButton2)

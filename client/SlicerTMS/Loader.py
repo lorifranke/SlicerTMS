@@ -19,7 +19,7 @@ class Loader:
         self._coil_file = 'coil.stl'
         self._coil_scale = 3
         self._skin_file = 'skin.stl'
-        self._magnorm_file = 'magnorm.nii.gz'
+        # self._magnorm_file = 'magnorm.nii.gz'
         self._magfield_file = 'magfield.nii.gz'
         self._conductivity_file = 'conductivity.nii.gz'
 
@@ -32,7 +32,7 @@ class Loader:
         self.conductivityNode = None
         self.magfieldGTNode = None
         self.magfieldNode = None
-        self.magnormNode = None
+        # self.magnormNode = None
         self.efieldNode = None
         self.enormNode = None
         self.coilDefaultMatrix = vtk.vtkMatrix4x4()
@@ -46,7 +46,7 @@ class Loader:
 
 
     def newImage(self, caller, event):
-        print('new pyigtl image received')
+        print('New pyigtl image received from CNN')
         M.Mapper.modifyIncomingImage(self)
 
 
@@ -59,9 +59,10 @@ class Loader:
 
 
     @staticmethod
-    def loadExample1(self, param1):
-        # param1 will be the flag which the user has selected
-        data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example1/')
+    def loadExample(self, example_path):
+        # example_path is the flag which the user has selected
+        print('Your example: ' + example_path)
+        data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../', example_path)
 
         loader = Loader(data_directory)
 
@@ -79,7 +80,6 @@ class Loader:
         loader.modelNode = slicer.modules.models.logic().AddModel(brainModelFile,
                                                                 slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
         
-
         #
         # 2. Fibers:
         #
@@ -135,10 +135,10 @@ class Loader:
         # 5. Other stuff
         #
 
-        # load magnorm (used for tesing and visualization, not useful for predicting E-field)
-        loader.magnormNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._magnorm_file ) )
-        loader.magnormNode.SetName('MagNorm')
-        loader.magnormNode.GetIJKToRASMatrix(loader.coilDefaultMatrix)
+        # # load magnorm (used for tesing and visualization, not useful for predicting E-field)
+        # loader.magnormNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._magnorm_file ) )
+        # loader.magnormNode.SetName('MagNorm')
+        # loader.magnormNode.GetIJKToRASMatrix(loader.coilDefaultMatrix)
 
 
         # load magvector as a GridTransformNode 
