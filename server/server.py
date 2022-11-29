@@ -131,7 +131,7 @@ class ServerTMS():
     @staticmethod
     def getF(self):
         # sys.stdout = open("test.txt", "w")
-        print('Selected Example:' + f)
+        print('Selected Example:' + f + '\n' + 'Please start 3DSlicer')
         return f
 
 if len(sys.argv) > 1:

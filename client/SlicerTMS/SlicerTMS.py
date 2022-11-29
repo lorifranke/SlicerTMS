@@ -43,14 +43,16 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.IGTLNode.PushOnConnect()
 
         self.textNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLTextNode', 'TextMessage')
-        self.textNode.SetForceCreateStorageNode(1)
+        self.textNode.SetForceCreateStorageNode(True)
         observer = self.textNode.AddObserver(slicer.vtkMRMLTextNode.TextModifiedEvent, self.newText)
 
+    def newText(self, caller, event):
         # self.t = slicer.util.getNode('TextMessage')
         self.t = slicer.mrmlScene.GetNodeByID('vtkMRMLTextNode1')
-        self.param1 = self.textNode.GetText() # this works inside Slicer with the python interactor but not here, why???
-        print('TEXT' + self.param1)
+        self.param1 = self.t.GetText() # this works inside Slicer with the python interactor but not here, why???
+        self.setupButtons(self.param1)
 
+    def setupButtons(self, param1):
         self.collapsibleButton = ctk.ctkCollapsibleButton()
         self.collapsibleButton.text = "TMS Visualization"
         self.layout.addWidget(self.collapsibleButton)
@@ -60,13 +62,8 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.formLayout.addRow(self.loadExampleButton)
 
         # self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
+        print(self.param1)
         self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample1(self, self.param1))
-
-        # self.loadExampleButton2 = qt.QPushButton("Load Example 2", self.collapsibleButton)
-        # self.formLayout.addRow(self.loadExampleButton2)
-        # # param1 = True
-        # # self.loadExampleButton2.clicked.connect(lambda: L.Loader.loadExample2(self,param1))
-        # self.loadExampleButton2.clicked.connect(L.Loader.loadExample2)
 
         self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
         self.showGMButton.checked = True
@@ -118,8 +115,3 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.log.readOnly = True
         self.formLayout2.addRow(self.log)
         # self.logMessage('<p>Status: <i>Idle</i>\n')
-
-
-    def newText(self, caller, event):
-        print('incoming text:')
-        print(self.param1)
