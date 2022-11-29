@@ -33,6 +33,8 @@ class ServerTMS():
         self.getF(self)
 
         server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
+        string_message = pyigtl.StringMessage(f, device_name="TextMessage")
+        server.send_message(string_message)
 
         timestep = 0
         script_path = os.path.dirname(os.path.abspath(__file__))
@@ -128,7 +130,7 @@ class ServerTMS():
     @staticmethod
     def getF(self):
         # sys.stdout = open("test.txt", "w")
-        print(f)
+        print('This is your Example:' + f)
         return f
 
 if len(sys.argv) > 1:

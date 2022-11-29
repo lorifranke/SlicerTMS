@@ -2,6 +2,7 @@ import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import sys
+import pyigtl
 import Loader as L
 import Mapper as M
 
@@ -25,11 +26,33 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.consoleMessages = True
         self.showGMButton = None
         self.param1 = None
+        self.IGTLNode = None
 
 
     def setup(self):
         ScriptedLoadableModuleWidget.setup(self)
         # self.logic = tmsLogic(logMessage=self.logMessage)
+
+        # IGTL connections
+        self.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
+        slicer.mrmlScene.AddNode(self.IGTLNode)
+        # node should be visible in OpenIGTLinkIF module under connectors
+        self.IGTLNode.SetName('Connector')
+        # add command line stuff here
+        self.IGTLNode.SetTypeClient('localhost', 18944)
+        # this will activate the the status of the connection:
+        self.IGTLNode.Start()
+        self.textNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLTextNode', 'TextMessage')
+        self.IGTLNode.RegisterIncomingMRMLNode(self.textNode)
+        self.IGTLNode.PushOnConnect()
+        # self.textNode.SetForceCreateStorageNode(1)
+        # self.t = slicer.util.getNode('TextMessage')
+        self.t = slicer.mrmlScene.GetNodeByID('vtkMRMLTextNode1')
+        print(self.t)
+        self.param1 = self.textNode.GetText() # this works inside Slicer with the python interactor but not here, why???
+        print('TEXT:')
+        print(self.param1)
+
 
         self.collapsibleButton = ctk.ctkCollapsibleButton()
         self.collapsibleButton.text = "TMS Visualization"
@@ -39,8 +62,6 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
 
-
-        server_path = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../server/server.py')
         # self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
         self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample1(self, self.param1))
 
@@ -58,7 +79,6 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         # # self.fiberButton.checked = True
         # self.formLayout.addRow(self.fiberButton)
         # self.fiberButton.stateChanged.connect(L.Loader.loadFibers)
-
 
         # disable OPENIGT tracker for now/testing
         # self.connectButton = qt.QPushButton("2. Start Tracker", self.collapsibleButton)
