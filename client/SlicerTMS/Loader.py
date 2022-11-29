@@ -4,7 +4,6 @@ from slicer.ScriptedLoadableModule import *
 # from slicerserver import Server
 # import nibabel as nib
 import numpy as np
-# from subprocess import check_output
 import subprocess
 
 import Mapper as M
@@ -44,8 +43,6 @@ class Loader:
         self.showMag = False #switch between magnetic and electric field for visualization
 
     def callMapper(self, param1=None, param2=None):
-        '''
-        '''
         M.Mapper.map(self)
 
 
@@ -63,8 +60,8 @@ class Loader:
 
 
     @staticmethod
-    def loadExample1(self):
-
+    def loadExample1(self, param1):
+        # param1 will be the flag which the user has selected
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example1/')
 
         loader = Loader(data_directory)
@@ -198,129 +195,4 @@ class Loader:
         #slicer.mrmlScene.AddObserver(slicer.vtkMRMLScene.NodeAddedEvent, loader.onNodeRcvd)
 
         return loader
-
-
-    @staticmethod
-    def loadExample2(self):
-        data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../data/Example2/')
-
-        loader = Loader(data_directory)
-
-        slicer.mrmlScene.Clear()
-
-        #
-        # 1. Brain:
-        #
-        brainModelFile = os.path.join( loader.data_directory, loader._graymatter_file )
-        loader.modelNode = slicer.modules.models.logic().AddModel(brainModelFile,
-                                                                slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        
-        #
-        # 2. Fibers:
-        #
-
-        fiberModelFile = os.path.join( loader.data_directory, loader._fiber_file )
-        loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
-                                                                slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        
-        loader.fiberNode.SetDisplayVisibility(0)
-
-        #
-        # 3. Skin model:
-        #
-        skin = os.path.join( loader.data_directory, loader._skin_file )
-        loader.skinNode = slicer.modules.models.logic().AddModel(skin, slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        skinDisplayNode = loader.skinNode.GetDisplayNode()
-        skinDisplayNode.SetOpacity(0.3)
-
-
-        #
-        # 4. TMS coil:
-        #
-        coil = os.path.join( loader.data_directory, loader._coil_file )
-        
-        loader.coilNode = slicer.modules.models.logic().AddModel(coil, slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        
-        # Set transform on the coil and resize it:
-        parentTransform = vtk.vtkTransform()
-        parentTransform.Scale(loader._coil_scale, loader._coil_scale, loader._coil_scale)
-        
-        loader.coilNode.ApplyTransformMatrix(parentTransform.GetMatrix())
-
-        # Add a plane to the scene
-        markupsPlaneNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsPlaneNode', 'Coil')
-        markupsPlaneNode.SetOrigin([0, 0, 110])
-        markupsPlaneNode.SetNormalWorld([0, 0, -10])
-        markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
-        markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
-        markupsPlaneNode.GetMarkupsDisplayNode().SetHandlesInteractive(True)
-        markupsPlaneNode.GetMarkupsDisplayNode().SetRotationHandleVisibility(1)
-        markupsPlaneNode.GetMarkupsDisplayNode().SetTranslationHandleVisibility(1)
-        markupsPlaneNode.GetDisplayNode().SetSnapMode(slicer.vtkMRMLMarkupsDisplayNode.SnapModeToVisibleSurface)
-        markupsPlaneNode.SetDisplayVisibility(1)
-        
-        loader.markupsPlaneNode = markupsPlaneNode
-
-        loader.transformNode = slicer.mrmlScene.AddNode(slicer.vtkMRMLLinearTransformNode())
-        loader.coilNode.SetAndObserveTransformNodeID(loader.transformNode.GetID())
-        
-
-        #
-        # 5. Other stuff
-
-
-        # load magvector as a GridTransformNode 
-        # the grid transform node (GTNode) only provide the 4D vtkImageData in the original space
-        # another 
-        loader.magfieldGTNode  = slicer.util.loadTransform(os.path.join( loader.data_directory, loader._magfield_file ))
-
-        # load conductivity
-        loader.conductivityNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._conductivity_file ) )
-        
-
-        # creat magfield vector volumeNode for visualizing rotated RBG-coded magnetic vector field
-        loader.magfieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
-        loader.magfieldNode.SetSpacing(loader.conductivityNode.GetSpacing())
-        loader.magfieldNode.SetOrigin(loader.conductivityNode.GetOrigin())
-        loader.magfieldNode.SetName('MagVec')
-
-        # create nodes for received E-field data from pyigtl 
-        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
-        loader.efieldNode.Copy(loader.magfieldNode)
-        loader.efieldNode.SetName('EVec')
-
-        loader.enormNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
-        loader.enormNode.Copy(loader.conductivityNode)
-        loader.enormNode.SetName('ENorm')
-
-
-        # IGTL connections
-        loader.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
-        slicer.mrmlScene.AddNode(loader.IGTLNode)
-        # node should be visible in OpenIGTLinkIF module under connectors
-        loader.IGTLNode.SetName('Connector1')
-        # add command line stuff here
-        loader.IGTLNode.SetTypeClient('localhost', 18944)
-        # this will activate the the status of the connection:
-        loader.IGTLNode.Start()
-        loader.IGTLNode.RegisterIncomingMRMLNode(loader.efieldNode)
-        loader.IGTLNode.RegisterOutgoingMRMLNode(loader.magfieldNode)
-        loader.IGTLNode.PushOnConnect()
-        print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
-
-        # observer for the icoming IGTL image data
-        loader.pyigtlNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode', 'pyigtl_data')
-        observationTag = loader.pyigtlNode.AddObserver(slicer.vtkMRMLVectorVolumeNode.ImageDataModifiedEvent, loader.newImage)
-
-         
-        # # call one time
-        loader.callMapper()
-
-        # # interaction hookup
-        loader.markupsPlaneNode.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, loader.callMapper)
-
-        #slicer.mrmlScene.AddObserver(slicer.vtkMRMLScene.NodeAddedEvent, loader.onNodeRcvd)
-
-        return loader
-        
 

@@ -1,7 +1,7 @@
 import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
-
+import sys
 import Loader as L
 import Mapper as M
 
@@ -24,6 +24,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.guiMessages = True
         self.consoleMessages = True
         self.showGMButton = None
+        self.param1 = None
 
 
     def setup(self):
@@ -35,12 +36,13 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
 
-        # script_path = os.path.dirname(os.path.abspath(__file__))
-        # client_path = os.path.join(script_path, '../../server/server.py')
-
         self.loadExampleButton = qt.QPushButton("1. Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
-        self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
+
+
+        server_path = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../../server/server.py')
+        # self.loadExampleButton.clicked.connect(L.Loader.loadExample1)
+        self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample1(self, self.param1))
 
         # self.loadExampleButton2 = qt.QPushButton("Load Example 2", self.collapsibleButton)
         # self.formLayout.addRow(self.loadExampleButton2)
