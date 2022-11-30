@@ -8,7 +8,7 @@ collected from a patient's MRI scans. This prototype is an extension of the open
 
 <table>
 <tr>
-<td valign="middle" width="200"><a href="https://slicer.org"><img src="https://www.slicer.org/assets/img/3D-Slicer-Mark.svg" title="Download Slicer here!" width=100></a></td>
+<td valign="middle" width="200"><a href="https://slicer.org"><img src="https://www.slicer.org/assets/img/3D-Slicer-Mark.svg" title="Download Slicer here!" width=150></a></td>
 <td valign="top" width="800"><b>1. 3D Slicer</b></a><br> Download the free open-source neuronavigation software 3D Slicer from http://slicer.org for your OS. The current stable version is 5.0.3. SlicerTMS will only work with the newest Slicer version. A Slicer documentation can be found here as well: https://slicer.readthedocs.io/
 </tr>
 
@@ -24,16 +24,28 @@ collected from a patient's MRI scans. This prototype is an extension of the open
 
 <tr>
 <td valign="middle" width="200"><img src="https://raw.githubusercontent.com/openigtlink/SlicerOpenIGTLink/master/OpenIGTLinkIF.png" title="Install Extension" width=150></a></td>
-<td valign="top" width="800"><b>4. Install OpenIGTLinkIF extension</b></a><br> 4. Install the Plugin 'SlicerOpenIGTLink' with Slicer's Extension Manager.
+<td valign="top" width="800"><b>4. Install OpenIGTLinkIF extension</b></a><br> 4. Install the Plugin 'SlicerOpenIGTLink' with Slicer's Extension Manager. The data will be transferred from the deep learning model through the built-in 3D Slicer module OpenIGTLinkIF and then visualized with our TMS tool in real-time.
 </tr>
 
 <tr>
 <td valign="middle" width="200"></a></td>
-<td valign="top" width="800"><b>5. Select your data </b></a><br> By navigating to the local cloned SlicerTMS repository your will find a folder with data. The current version contains two different patient examples, Example1 and Example2. 
+<td valign="top" width="800"><b>5. Select your data </b></a><br> By navigating to the local cloned SlicerTMS repository your will find a folder called data. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field and magnetic field files of the TMS, as well as skin and brain meshes. Also, each of the folders contain model.pth.tar files which are pre-trained pytorch models. You can exchange these files with your own examples.
 </tr>
+
+<tr>
+<td valign="middle" width="200"> <img src="https://conda.io/projects/conda/en/latest/_images/conda_logo.svg"> </a></td>
+<td valign="top" width="800"><b> 6. Environment to run the CNN and TMS module. </b></a><br> Please make sure, that you have the correct environment and libraries to run the neural network. We included an environment.yml file that can be imported in anaconda. Please see the conda website how to activate an environment: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html 
+</tr>
+
+<tr>
+<td valign="middle" width="200">
+<img width="180" src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
+<td valign="top" width="800"><b>6. Run Slicer TMS. </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder and <code>python server.py Example2</code> for Example2. Please do NOT close this window and open 3D Slicer. After opening Slicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
+</tr>
+
 </table>
 
-At first, the data is transferred from the deep learning model through a built-in 3D Slicer module called OpenIGTLinkIF and then visualized with our TMS tool in real-time. Additionally, we integrated a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices.
+Additionally, we will integrate a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices.
 
 ## Demo ##
 
