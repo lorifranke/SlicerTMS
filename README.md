@@ -62,3 +62,4 @@ Additionally, we will integrate a connection to transfer data between the neuron
 Copyright (c) 2022 The SlicerTMS Developers. SlicerTMS is licensed under the MIT License: <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">http://www.opensource.org/licenses/mit-license.php</a>
   
 ## Publications ##
+to appear :-)
