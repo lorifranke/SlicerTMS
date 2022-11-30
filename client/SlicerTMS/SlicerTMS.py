@@ -2,7 +2,6 @@ import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import sys
-import pyigtl
 import Loader as L
 import Mapper as M
 
