@@ -70,7 +70,11 @@ class ServerTMS():
             name = k[7:] # remove `module.`
             new_state_dict[name] = v
         # load params
-        net.load_state_dict(new_state_dict)  
+        net.load_state_dict(new_state_dict) 
+        if torch.cuda.is_available():
+            net = net.cuda() 
+        else:
+            pass
 
 
         data_path = os.path.join(script_path, '../data/')
