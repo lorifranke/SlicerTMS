@@ -18,7 +18,7 @@ collected from a patient's MRI scans. This prototype is an extension of the open
 </tr>
 
 <tr>
-<td valign="middle" width="200"><img src="https://docs.monai.io/projects/label/en/latest/_images/monai-label-plugin-favorite-modules-1.png" title="Install SlicerTMS" width=150></a></td>
+<td valign="middle" width="200"><img src="https://docs.monai.io/projects/label/en/latest/_images/monai-label-plugin-favorite-modules-1.png" title="Install SlicerTMS"></a></td>
 <td valign="top" width="800"><b>3. Install SlicerTMS extension in 3DSlicer</b></a><br> Start Slicer. Go to Edit --> Application Settings --> Developer --> Check the enable developer mode. Then, Go to Developer tools --> Extension Wizard --> Click Select extension and select the cloned repository folder with the SlicerTMS.py file from your local computer. Altenatively, you can install SlicerTMS in the Application settings under Modules. You can add the path to the application by clicking the two arrows on the right of the window and select 'Add'.
 </tr>
 
@@ -28,8 +28,8 @@ collected from a patient's MRI scans. This prototype is an extension of the open
 </tr>
 
 <tr>
-<td valign="middle" width="200"></a></td>
-<td valign="top" width="800"><b>5. Select your data </b></a><br> By navigating to the local cloned SlicerTMS repository your will find a folder called data. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field and magnetic field files of the TMS, as well as skin and brain meshes. Also, each of the folders contain model.pth.tar files which are pre-trained pytorch models. You can exchange these files with your own examples.
+<td valign="middle" width="200"><img src="https://user-images.githubusercontent.com/38534852/204691323-f271a2e1-79fa-4187-b3ed-123129391bce.png" width=150></a></td>
+<td valign="top" width="800"><b>5. Select your data </b></a><br> By navigating to the local cloned SlicerTMS repository your will find a folder called data. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field and magnetic field files of the TMS, as well as skin and brain meshes. Also, each of the folders contain model.pth.tar files which are pre-trained pytorch models. You can exchange these files with your own examples and models.
 </tr>
 
 <tr>
@@ -39,15 +39,16 @@ collected from a patient's MRI scans. This prototype is an extension of the open
 
 <tr>
 <td valign="middle" width="200">
-<img width="180" src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
+<img src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
 <td valign="top" width="800"><b>6. Run Slicer TMS. </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder and <code>python server.py Example2</code> for Example2. Please do NOT close this window and open 3D Slicer. After opening Slicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
 </tr>
-
 </table>
 
 Additionally, we will integrate a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices.
 
 ## Demo ##
+![tms](https://user-images.githubusercontent.com/38534852/204691744-c2ee8451-7f4c-40c3-83a5-c2fd0103f0a7.gif)
+
 
 
 ## Affiliations and Sponsors ##
