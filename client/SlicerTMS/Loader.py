@@ -53,9 +53,9 @@ class Loader:
     # def loadBrain(self):
     #     self.modelNode.SetDisplayVisibility(1)
 
-
-    # def loadFibers(self):
-    #     self.fiberNode.SetDisplayVisibility(1)
+    @staticmethod
+    def loadFibers(self):
+        loader.fiberNode.SetDisplayVisibility(1)
 
 
     @staticmethod
@@ -66,7 +66,7 @@ class Loader:
 
         loader = Loader(data_directory)
 
-        # slicer.mrmlScene.Clear()
+        # slicer.mrmlScene.Clear() # had to uncomment this otherwise it would have removed the OpenIGTLink connectors
 
         # executing commands from inside SLicer: this should start the server for the CNN (need to check if another process is running, if yes terminate)
         # command_result = subprocess.Popen(["/usr/bin/python3", "-c", "../../server/server.py", "../../data/Example1/"], shell=True, env=slicer.util.startupEnvironment())

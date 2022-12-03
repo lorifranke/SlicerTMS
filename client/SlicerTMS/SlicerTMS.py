@@ -66,10 +66,10 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.showGMButton.checked = True
         self.formLayout.addRow(self.showGMButton)
 
-        # self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
-        # # self.fiberButton.checked = True
-        # self.formLayout.addRow(self.fiberButton)
-        # self.fiberButton.stateChanged.connect(L.Loader.loadFibers)
+        self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
+        # self.fiberButton.checked = True
+        self.formLayout.addRow(self.fiberButton)
+        self.fiberButton.stateChanged.connect(L.Loader.loadFibers)
 
         # disable OPENIGT tracker for now/testing
         # self.connectButton = qt.QPushButton("2. Start Tracker", self.collapsibleButton)
