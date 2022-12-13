@@ -145,6 +145,10 @@ class Mapper:
         brainNode.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         brainNode.GetDisplayNode().ScalarVisibilityOn()
         brainNode.GetDisplayNode().SetScalarRange(fMin, fMax)
+        # color legend for brain scalars:
+        colorLegendDisplayNode = slicer.modules.colors.logic().AddDefaultColorLegendDisplayNode(brainNode)
+        colorLegendDisplayNode.SetTitleText("EVec")
+        colorLegendDisplayNode.SetLabelFormat("%7.8f")
 
 
     @staticmethod
