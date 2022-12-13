@@ -101,8 +101,11 @@ class ServerTMS():
             for message in messages:
                 magvec = message.image
                 magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
+                mask = np.concatenate((cond_data, cond_data, cond_data), axis=3)
+                magvec = (mask>0)*magvec
+                inputData = np.concatenate((cond_data, magvec*1000000), axis=3)
 
-                inputData = np.concatenate((cond_data, magvec*100), axis=3)
+
                 inputData = inputData.transpose(3, 0, 1, 2)
                 size = np.array([1, 4,  xyz[0], xyz[1], xyz[2]])
                 inputData = np.reshape(inputData,size)
@@ -112,7 +115,7 @@ class ServerTMS():
                 st = time.time()
                 inputData_gpu = torch.from_numpy(inputData).to(device)
                 # get the end time
-                et = time.time()
+                
 
                 outputData = net(inputData_gpu.float())
                 outputData = outputData.cpu()
@@ -121,7 +124,7 @@ class ServerTMS():
                 outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
                 outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
                 outputData = LA.norm(outputData, axis = 3)
-
+                et = time.time()
                 image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
                 server.send_message(image_message)
 
