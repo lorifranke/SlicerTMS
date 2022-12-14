@@ -77,23 +77,16 @@ class Mapper:
                                    [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)],
                                    [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)]])
         # # rotate the vector field
-
         DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
         # # reshape the numpy array
         DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
-        # # print(DataOut_np_rot.shape)
-
         VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
-        # # print(VTK_array)
-
         DataOut.GetPointData().SetScalars(VTK_array)
         DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
 
         loader.magfieldNode.SetAndObserveImageData(DataOut)
     
         loader.IGTLNode.PushNode(loader.magfieldNode)
-
-
 
 
         # time in seconds:
