@@ -114,9 +114,9 @@ class ServerTMS():
                 #get start time to test CNN execution time
                 st = time.time()
                 inputData_gpu = torch.from_numpy(inputData).to(device)
-                # get the end time
+                #measure end time of cnn execution
+                et = time.time()
                 
-
                 outputData = net(inputData_gpu.float())
                 outputData = outputData.cpu()
                 outputData = outputData.detach().numpy()
@@ -124,7 +124,7 @@ class ServerTMS():
                 outputData = np.reshape(outputData,([xyz[0], xyz[1], xyz[2], 3]))
                 outputData = np.transpose(outputData, axes=(2, 1, 0, 3))
                 outputData = LA.norm(outputData, axis = 3)
-                et = time.time()
+
                 image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
                 server.send_message(image_message)
 
