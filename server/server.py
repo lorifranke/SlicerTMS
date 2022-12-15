@@ -39,7 +39,6 @@ class ServerTMS():
 
         timestep = 0
         script_path = os.path.dirname(os.path.abspath(__file__))
-        # model_path = os.path.join(script_path,'../model/model_iso.pth.tar')
         model_path = os.path.join(script_path, str(f) + '/model.pth.tar')
 
         # load CNN model
@@ -48,7 +47,7 @@ class ServerTMS():
         base_n_filter = 16
 
         # needs nvidia driver version 510 for cuda 11.6
-        # deactivates cuda uncomment to use cpu:
+        # To deactivate cuda (if no gpu available) plase uncomment to only use the cpu:
         # torch.cuda.is_available = lambda : False
         use_cuda = torch.cuda.is_available()
         print('Cuda available: ', use_cuda)
@@ -101,8 +100,11 @@ class ServerTMS():
             for message in messages:
                 magvec = message.image
                 magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
+                mask = np.concatenate((cond_data, cond_data, cond_data), axis=3)
+                magvec = (mask>0)*magvec
+                inputData = np.concatenate((cond_data, magvec*1000000), axis=3)
 
-                inputData = np.concatenate((cond_data, magvec*100), axis=3)
+
                 inputData = inputData.transpose(3, 0, 1, 2)
                 size = np.array([1, 4,  xyz[0], xyz[1], xyz[2]])
                 inputData = np.reshape(inputData,size)
@@ -111,9 +113,9 @@ class ServerTMS():
                 #get start time to test CNN execution time
                 st = time.time()
                 inputData_gpu = torch.from_numpy(inputData).to(device)
-                # get the end time
+                #measure end time of cnn execution
                 et = time.time()
-
+                
                 outputData = net(inputData_gpu.float())
                 outputData = outputData.cpu()
                 outputData = outputData.detach().numpy()

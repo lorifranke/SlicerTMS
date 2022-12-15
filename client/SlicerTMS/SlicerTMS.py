@@ -58,27 +58,13 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
 
         self.loadExampleButton = qt.QPushButton("Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
-
-        # self.loadExampleButton.clicked.connect(L.Loader.loadExample)
+        # we need to pass the selected example from the command line with the example path:
         self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self, self.example_path))
 
-        self.showGMButton = qt.QCheckBox("Show Brain Surface", self.collapsibleButton)
-        self.showGMButton.checked = True
-        self.formLayout.addRow(self.showGMButton)
-
         self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
-        # self.fiberButton.checked = True
+        # self.fiberButton.checked = False
         self.formLayout.addRow(self.fiberButton)
-        self.fiberButton.stateChanged.connect(L.Loader.loadFibers)
-
-        # disable OPENIGT tracker for now/testing
-        # self.connectButton = qt.QPushButton("2. Start Tracker", self.collapsibleButton)
-        # self.formLayout.addRow(self.connectButton)
-        # self.connectButton.clicked.connect(self.onOpenIGTLLinkStart)
-        #
-        # self.trackerStartedButton = qt.QPushButton("3. Apply transform", self.collapsibleButton)
-        # self.formLayout.addRow(self.trackerStartedButton)
-        # self.trackerStartedButton.clicked.connect(self.onTrackerHasStarted)
+        self.fiberButton.stateChanged.connect(L.Loader.showFibers)
 
         self.initialScalarArray = None
 

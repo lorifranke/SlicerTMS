@@ -6,7 +6,7 @@ from vtk.util.numpy_support import vtk_to_numpy
 from vtk.util.numpy_support import numpy_to_vtk
 import timeit
 
-class Mapper:
+class Mapper():
 
     @staticmethod
     def map(loader, time=True):
@@ -77,23 +77,16 @@ class Mapper:
                                    [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)],
                                    [matrixFromFid.GetElement(0,1), matrixFromFid.GetElement(1,1),  matrixFromFid.GetElement(2,1)]])
         # # rotate the vector field
-
         DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
         # # reshape the numpy array
         DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
-        # # print(DataOut_np_rot.shape)
-
         VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
-        # # print(VTK_array)
-
         DataOut.GetPointData().SetScalars(VTK_array)
         DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
 
         loader.magfieldNode.SetAndObserveImageData(DataOut)
     
         loader.IGTLNode.PushNode(loader.magfieldNode)
-
-
 
 
         # time in seconds:
@@ -131,7 +124,6 @@ class Mapper:
         modelTransformerIjkToRas.Update()
 
 
-
         brainNode.SetAndObserveMesh(modelTransformerIjkToRas.GetOutput())
 
         probedPointScalars = probe.GetOutput().GetPointData().GetScalars()
@@ -145,6 +137,10 @@ class Mapper:
         brainNode.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         brainNode.GetDisplayNode().ScalarVisibilityOn()
         brainNode.GetDisplayNode().SetScalarRange(fMin, fMax)
+        # color legend for brain scalars:
+        colorLegendDisplayNode = slicer.modules.colors.logic().AddDefaultColorLegendDisplayNode(brainNode)
+        colorLegendDisplayNode.SetTitleText("EVec")
+        colorLegendDisplayNode.SetLabelFormat("%7.8f")
 
 
     @staticmethod
@@ -154,4 +150,5 @@ class Mapper:
         loader.pyigtlNode.ApplyTransformMatrix(matrix_ref)
         # this part will need to be done with the resampling (it only maps the incoming pyigtl image to the brain):
         Mapper.mapElectricfieldToMesh(loader.pyigtlNode, loader.modelNode)
+        Mapper.mapElectricfieldToMesh(loader.pyigtlNode, loader.fiberNode)
 
