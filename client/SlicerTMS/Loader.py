@@ -51,25 +51,25 @@ class Loader:
     def showFibers(self):
         fiberNode = slicer.util.getNode('fibers')
         modelNode = slicer.util.getNode('gm')
-        if qt.Qt.Checked:
-            print("Checked Fiber Visibility")
+        if self == 2:
+            print("Show Fibers")
             fiberNode.SetDisplayVisibility(1)
             modelNode.SetDisplayVisibility(0)
-        elif qt.Qt.Unchecked:
-            print("Unchecked Fiber Visibility")
+        elif self == 0:
+            print("Show Brain Surface")
             fiberNode.SetDisplayVisibility(0)
             modelNode.SetDisplayVisibility(1)
 
 
     def newImage(self, caller, event):
-        print('new pyigtl image received')
+        print('New CNN Image received via PyIgtl')
         M.Mapper.modifyIncomingImage(self)
 
 
     @staticmethod
     def loadExample(self, example_path):
 
-        print('Your example: ' + example_path)
+        print('Your selected Example: ' + example_path)
         data_directory = os.path.join(os.path.dirname(slicer.modules.slicertms.path), '../', example_path)
 
         loader = Loader(data_directory)
@@ -90,7 +90,7 @@ class Loader:
         fiberModelFile = os.path.join( loader.data_directory, loader._fiber_file )
         loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
                                                                 slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        fiberNode.SetDisplayVisibility(0)
+        loader.fiberNode.SetDisplayVisibility(0)
 
         #
         # 3. Skin model:
@@ -143,8 +143,7 @@ class Loader:
 
 
         # load magvector as a GridTransformNode 
-        # the grid transform node (GTNode) only provide the 4D vtkImageData in the original space
-        # another 
+        # the grid transform node (GTNode) only provides the 4D vtkImageData in the original space
         loader.magfieldGTNode  = slicer.util.loadTransform(os.path.join( loader.data_directory, loader._magfield_file ))
 
         # load conductivity
