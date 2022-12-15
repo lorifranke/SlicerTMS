@@ -48,6 +48,15 @@ class Loader:
         '''
         M.Mapper.map(self)
 
+    def showFibers(self):
+        fiberNode = slicer.util.getNode('fibers')
+        if qt.Qt.Checked:
+            print("Checked Fiber Visibility")
+            fiberNode.SetDisplayVisibility(1)
+        elif qt.Qt.Unchecked:
+            print("Unchecked Fiber Visibility")
+            fiberNode.SetDisplayVisibility(0)
+
 
     def newImage(self, caller, event):
         print('new pyigtl image received')
@@ -78,8 +87,7 @@ class Loader:
         fiberModelFile = os.path.join( loader.data_directory, loader._fiber_file )
         loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
                                                                 slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        
-        loader.fiberNode.SetDisplayVisibility(0)
+
 
         #
         # 3. Skin model:

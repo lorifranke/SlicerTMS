@@ -124,7 +124,6 @@ class Mapper:
         modelTransformerIjkToRas.Update()
 
 
-
         brainNode.SetAndObserveMesh(modelTransformerIjkToRas.GetOutput())
 
         probedPointScalars = probe.GetOutput().GetPointData().GetScalars()
