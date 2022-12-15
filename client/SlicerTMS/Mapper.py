@@ -6,7 +6,7 @@ from vtk.util.numpy_support import vtk_to_numpy
 from vtk.util.numpy_support import numpy_to_vtk
 import timeit
 
-class Mapper:
+class Mapper():
 
     @staticmethod
     def map(loader, time=True):
