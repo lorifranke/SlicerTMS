@@ -62,7 +62,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self, self.example_path))
 
         self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
-        # self.fiberButton.checked = True
+        # self.fiberButton.checked = False
         self.formLayout.addRow(self.fiberButton)
         self.fiberButton.stateChanged.connect(L.Loader.showFibers)
 
