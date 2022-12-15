@@ -50,12 +50,15 @@ class Loader:
 
     def showFibers(self):
         fiberNode = slicer.util.getNode('fibers')
+        modelNode = slicer.util.getNode('gm')
         if qt.Qt.Checked:
             print("Checked Fiber Visibility")
             fiberNode.SetDisplayVisibility(1)
+            modelNode.SetDisplayVisibility(0)
         elif qt.Qt.Unchecked:
             print("Unchecked Fiber Visibility")
             fiberNode.SetDisplayVisibility(0)
+            modelNode.SetDisplayVisibility(1)
 
 
     def newImage(self, caller, event):
@@ -87,7 +90,7 @@ class Loader:
         fiberModelFile = os.path.join( loader.data_directory, loader._fiber_file )
         loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
                                                                 slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-
+        fiberNode.SetDisplayVisibility(0)
 
         #
         # 3. Skin model:
