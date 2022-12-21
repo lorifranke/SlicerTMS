@@ -4,7 +4,7 @@ from slicer.ScriptedLoadableModule import *
 import sys
 import Loader as L
 import Mapper as M
-
+# import webserver.WebServer as W
 
 class SlicerTMS(ScriptedLoadableModule):
     def __init__(self, parent):
@@ -81,7 +81,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.startServerButton = qt.QPushButton("Start Server")
         self.startServerButton.toolTip = "Start web server with the selected options."
         self.formLayout2.addRow(self.startServerButton)
-        # self.startServerButton.connect('clicked()', self.logic.start)
+        # self.startServerButton.connect('clicked()', W.WebServer.start)
         # replace logic with server stuff
 
         # stop button
