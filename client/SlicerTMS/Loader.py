@@ -1,14 +1,8 @@
 import os
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
-# from slicerserver import Server
-# import nibabel as nib
 import numpy as np
-# from subprocess import check_output
-import subprocess
-
 import Mapper as M
-import SlicerTMS as S
 
 
 class Loader:
