@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>3D Slicer Web Server Experiments</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
+    <meta name='mobile-web-app-capable' content='yes'>
+    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <script src="./three.min.js"></script>
+    <link href='./stylesheets/application.css' rel='stylesheet'>
+</head>
+<body>
+<div id="overlay">
+    <header>
+        <details open>
+            <summary>Slicer WebXR Overlay</summary>
+            <p>WebXR TMS Coil <a class="back" href="./index.html">Back</a>
+            </p>
+            <div id="session-info"></div>
+            <div id="pose"></div>
+            <div id="warning-zone"></div>
+            <button id="xr-button" class="barebones-button" disabled>XR not found</button>
+        </details>
+    </header>
+</div>
+<main style='text-align: center;'>
+    <p>Click 'Enter AR' to see content</p>
+</main>
+<script type="module">
+    // WebSocket connection
+    let socket = null;
+    console.log(document.location.protocol);
+    if (document.location.protocol === 'https:') {
+        socket = new WebSocket("wss://127.0.0.1:2016/websocket");
+    }
+    socket.onerror = function (error) {
+        alert(`[error] ${error.message}`);
+    };
+
+    // XR globals.
+    let xrButton = document.getElementById('xr-button');
+    let xrSession = null;
+    let xrRefSpace = null;
+    let currentPose = null;
+    let currentURL = "Nothing sent";
+
+    // WebGL scene globals.
+    let gl = null;
+    let camera, scene, renderer;
+
+    function checkSupportedState() {
+        navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+            if (supported) {
+                xrButton.innerHTML = 'Enter AR';
+            } else {
+                xrButton.innerHTML = 'AR not found';
+            }
+            xrButton.disabled = !supported;
+        });
+    }
+
+    function initXR() {
+        if (!window.isSecureContext) {
+            document.getElementById("warning-zone").innerText = "WebXR unavailable due to insecure context";
+        }
+
+        if (navigator.xr) {
+            xrButton.addEventListener('click', onButtonClicked);
+            navigator.xr.addEventListener('devicechange', checkSupportedState);
+            checkSupportedState();
+        }
+    }
+
+    function onButtonClicked() {
+        if (!xrSession) {
+            // Ask for an optional DOM Overlay, see https://immersive-web.github.io/dom-overlays/
+            navigator.xr.requestSession('immersive-ar', {
+                optionalFeatures: ['dom-overlay'],
+                domOverlay: {root: document.getElementById('overlay')}
+            }).then(onSessionStarted, onRequestSessionError);
+        } else {
+            xrSession.end();
+        }
+    }
+
+    function onSessionStarted(session) {
+        xrSession = session;
+        xrButton.innerHTML = 'Exit AR';
+        // Show which type of DOM Overlay got enabled (if any)
+        if (session.domOverlayState) {
+            document.getElementById('session-info').innerHTML = 'DOM Overlay type: ' + session.domOverlayState.type;
+        }
+
+        session.addEventListener('end', onSessionEnded);
+        let canvas = document.createElement('canvas');
+        gl = canvas.getContext('webgl', {xrCompatible: true});
+        session.updateRenderState({baseLayer: new XRWebGLLayer(session, gl)});
+
+        session.requestReferenceSpace('local').then((refSpace) => {
+            xrRefSpace = refSpace;
+            session.requestAnimationFrame(onXRFrame);
+        });
+        renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            preserveDrawingBuffer: true,
+            canvas: canvas,
+            context: gl
+        });
+        renderer.xr.enabled = true;
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera();
+        camera.matrixAutoUpdate = false;
+
+        // add the coil here:
+
+        // const stlLoader = new THREE.STLLoader();
+        // stlLoader.load("./coil_model.stl", function (geometry) {
+        //     geometry.computeVertexNormals();
+        //     geometry.center();
+        //     const material = new THREE.MeshLambertMaterial({color: 0xEFDFDF});
+        //     const mesh = new THREE.Mesh(geometry, material);
+        //     mesh.scale.multiplyScalar(0.5);
+        //     mesh.position.set(0.1, -1.4, -5);
+        //     scene.add(mesh);
+        // });
+    }
+
+    function onRequestSessionError(ex) {
+        alert("Failed to start immersive AR session.");
+        console.error(ex.message);
+    }
+
+    function onEndSession(session) {
+        session.end();
+    }
+
+    function onSessionEnded(event) {
+        xrSession = null;
+        xrButton.innerHTML = 'Enter AR';
+        document.getElementById('session-info').innerHTML = '';
+        gl = null;
+    }
+
+    function onXRFrame(t, frame) {
+        let session = frame.session;
+        session.requestAnimationFrame(onXRFrame);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer);
+
+        // retrieve pose of device:
+        let pose = frame.getViewerPose(xrRefSpace);
+        if (pose) {
+            const p = pose.transform.position;
+            const m = pose.transform.matrix;
+            document.getElementById('pose').innerText = "" +
+                "Position: " + 1000 * p.x.toFixed(3) + ", " + 1000 * p.y.toFixed(3) + ", " + 1000 * p.z.toFixed(3) + "\n" +
+                "matrix:\n" +
+                m[0].toFixed(3) + ", " + m[4].toFixed(3) + ", " + m[8].toFixed(3) + ", " + m[12].toFixed(3) + "\n" +
+                m[1].toFixed(3) + ", " + m[5].toFixed(3) + ", " + m[9].toFixed(3) + ", " + m[13].toFixed(3) + "\n" +
+                m[2].toFixed(3) + ", " + m[6].toFixed(3) + ", " + m[10].toFixed(3) + ", " + m[14].toFixed(3) + "\n" +
+                m[3].toFixed(3) + ", " + m[7].toFixed(3) + ", " + m[11].toFixed(3) + ", " + m[15].toFixed(3) + "\n" + currentURL;
+                console.log(m)
+            if (currentPose == null) {
+                currentPose = pose;
+                sendTracker();
+            }
+            currentPose = pose;
+
+        } else {
+            document.getElementById('pose').innerText = "Position: (null pose)";
+        }
+        renderer.render(scene, camera);
+    }
+
+    function sendTracker() {
+        if (socket === null) {
+            return
+        }
+        let pose = currentPose;
+        if (pose) {
+            // let putURL = "slicer/tracking";
+            let putURL ="";
+            const p = pose.transform.position;
+            const o = pose.transform.orientation;
+            const m = pose.transform.matrix;
+
+            putURL += `?p=${1000 * p.x},${1000 * p.y},${1000 * p.z}`;
+            putURL += `&q=${o.w},${o.x},${o.y},${o.z}`;
+            let ma = `${m}`;
+            // console.log(putURL);
+            // socket.send(ma);
+            socket.send(putURL);
+            currentURL = putURL;
+        }
+    }
+
+    setInterval(sendTracker, 200);
+
+    initXR();
+</script>
+</body>
+</html>
