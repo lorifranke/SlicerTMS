@@ -3,8 +3,10 @@ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import sys
 import Loader as L
-import Mapper as M
-# import webserver.WebServer as W
+# import Mapper as M
+# import WebServer as W
+import Tester as T
+
 
 class SlicerTMS(ScriptedLoadableModule):
     def __init__(self, parent):
@@ -81,20 +83,20 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.startServerButton = qt.QPushButton("Start Server")
         self.startServerButton.toolTip = "Start web server with the selected options."
         self.formLayout2.addRow(self.startServerButton)
-        # self.startServerButton.connect('clicked()', W.WebServer.start)
-        # replace logic with server stuff
+        # print(W.WebServer) this is the class webserver, printing it works but calling it's functions does not
+        self.startServerButton.clicked.connect(T.Tester.start)
 
-        # stop button
-        self.stopServerButton = qt.QPushButton("Stop Server")
-        self.stopServerButton.toolTip = "Stop web server"
-        self.formLayout2.addRow(self.stopServerButton)
-        # self.stopServerButton.connect('clicked()', self.logic.stop)
+        # # stop button
+        # self.stopServerButton = qt.QPushButton("Stop Server")
+        # self.stopServerButton.toolTip = "Stop web server"
+        # self.formLayout2.addRow(self.stopServerButton)
+        # self.stopServerButton.connect('clicked()', T.Tester.stop)
 
         # open browser page
         self.localConnectionButton = qt.QPushButton("Open static page in external browser")
         self.localConnectionButton.toolTip = "Open a connection to the server on the local machine with your system browser."
         self.formLayout2.addRow(self.localConnectionButton)
-        # self.localConnectionButton.connect('clicked()', self.openLocalConnection)
+        self.localConnectionButton.connect('clicked()', T.Tester.openLocalConnection)
 
         self.log = qt.QTextEdit()
         self.log.readOnly = True
