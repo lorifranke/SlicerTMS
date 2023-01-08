@@ -1,0 +1,17 @@
+.container {
+  padding-left: 20px;
+}
+
+#slicer_header {
+  font-size: 48px;
+  text-shadow: 2px 2px 3px #777;
+
+  // border: 1px solid red;
+  .gray {
+    color: #77c;
+    vertical-align: top;
+  }
+  .text {
+    vertical-align: top;
+  }
+}
