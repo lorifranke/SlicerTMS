@@ -3,9 +3,7 @@ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import sys
 import Loader as L
-# import Mapper as M
-# import WebServer as W
-import Tester as T
+import SlicerWebServer as W
 
 
 class SlicerTMS(ScriptedLoadableModule):
@@ -31,7 +29,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
 
     def setup(self):
         ScriptedLoadableModuleWidget.setup(self)
-        # self.logic = tmsLogic(logMessage=self.logMessage)
+        self.websv = W.SlicerWebServer(logMessage=self.logMessage)
 
         # IGTL connections
         self.IGTLNode = slicer.vtkMRMLIGTLConnectorNode()
@@ -83,22 +81,37 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.startServerButton = qt.QPushButton("Start Server")
         self.startServerButton.toolTip = "Start web server with the selected options."
         self.formLayout2.addRow(self.startServerButton)
-        # print(W.WebServer) this is the class webserver, printing it works but calling it's functions does not
-        self.startServerButton.clicked.connect(T.Tester.start)
+        self.startServerButton.clicked.connect(self.websv.start)
 
         # # stop button
-        # self.stopServerButton = qt.QPushButton("Stop Server")
-        # self.stopServerButton.toolTip = "Stop web server"
-        # self.formLayout2.addRow(self.stopServerButton)
-        # self.stopServerButton.connect('clicked()', T.Tester.stop)
+        self.stopServerButton = qt.QPushButton("Stop Server")
+        self.stopServerButton.toolTip = "Stop web server"
+        self.formLayout2.addRow(self.stopServerButton)
+        self.stopServerButton.connect('clicked()', self.websv.stop)
 
         # open browser page
         self.localConnectionButton = qt.QPushButton("Open static page in external browser")
         self.localConnectionButton.toolTip = "Open a connection to the server on the local machine with your system browser."
         self.formLayout2.addRow(self.localConnectionButton)
-        self.localConnectionButton.connect('clicked()', T.Tester.openLocalConnection)
+        self.localConnectionButton.connect('clicked()', self.websv.openLocalConnection)
 
         self.log = qt.QTextEdit()
         self.log.readOnly = True
         self.formLayout2.addRow(self.log)
         # self.logMessage('<p>Status: <i>Idle</i>\n')
+
+
+    def logMessage(self, *args):
+        if self.consoleMessages:
+            for arg in args:
+                print(arg)
+        if self.guiMessages:
+            if len(self.log.html) > 1024 * 256:
+                self.log.clear()
+                self.log.insertHtml("Log cleared\n")
+            for arg in args:
+                self.log.insertHtml(arg)
+            self.log.insertPlainText('\n')
+            self.log.ensureCursorVisible()
+            self.log.repaint()
+
