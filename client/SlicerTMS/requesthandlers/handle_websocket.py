@@ -59,19 +59,25 @@ class SlicerWebSocketHandler(WebSocketHandler):
         except KeyError:
             position = None
 
+        print('accessing markupsplane node now')
         # slicer.util.getNode('vtkMRMLMarkupsPlaneNode1').SetDisplayVisibility(0)
         nodes = slicer.mrmlScene.GetNodesByName('tracker')
         if nodes.GetNumberOfItems() > 0:
-            # self.coil = slicer.util.getNode('fig8coil')
-            self.coil = slicer.util.getNode('vtkMRMLMarkupsPlaneNode1')
+            self.coilfid = slicer.util.getNode('vtkMRMLMarkupsPlaneNode1')
+            self.coilfid.SetOrigin([0, 0, 0]) # need to reset the position because in the loader with set the coil to [0, 0, 110] as default
             self.tracker = nodes.GetItemAsObject(0)
         else:
             self.tracker = slicer.vtkMRMLLinearTransformNode()
             self.tracker.SetName('tracker')
             slicer.mrmlScene.AddNode(self.tracker)
-            # self.coil = slicer.util.getNode('fig8coil')
-            self.coil = slicer.util.getNode('vtkMRMLMarkupsPlaneNode1')
+            self.coilfid = slicer.util.getNode('vtkMRMLMarkupsPlaneNode1')
+            self.coilfid.SetOrigin([0, 0, 0]) # need to reset the position because in the loader with set the coil to [0, 0, 110] as default
+            self.coilfid.SetAndObserveTransformNodeID(self.tracker.GetID())
+            # self.coil = slicer.modules.models.logic().GetMRMLScene().GetNodesByName('coil') # this is the 3d coil model
+            self.coil = slicer.util.getNode('coil')
             self.coil.SetAndObserveTransformNodeID(self.tracker.GetID())
+            print('tracking the coil!')
+
         m = vtk.vtkMatrix4x4()
         self.tracker.GetMatrixTransformToParent(m)
         # self.markup.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, self.onHandlesModified)
@@ -101,6 +107,9 @@ class SlicerWebSocketHandler(WebSocketHandler):
                     m.SetElement(row, column, m3[row][column])
 
         self.tracker.SetMatrixTransformToParent(m)
+        print('sending stuff!!')
         # this method needs to be called to update the efield on the brain:
-        slicer.modules.SlicerTMSWidget.onHandlesModified()
-        # slicer still crashes when the method is called!
+        # slicer.modules.SlicerTMSWidget.onHandlesModified()
+        # slicer.modules.slicertms.onHandlesModified()
+
+
