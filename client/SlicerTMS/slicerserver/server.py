@@ -24,7 +24,7 @@ class Server:
         if app is None:
             # the StaticFileHandler only takes the path arg as a string, so we have to decode the byte string
             app = Application([(r"/websocket", SlicerWebSocketHandler),
-                               (r"/(.*)", StaticFileHandler, {"path": docroot.decode("utf-8"), "default_filename": "index.html"})])
+                               (r"/(.*)", StaticFileHandler, {"path": docroot, "default_filename": "index.html"})])
             #app = Application(handlers=[(r"/",SlicerWebSocketHandler)])
 
         if certfile is not None and keyfile is not None:
