@@ -102,5 +102,5 @@ class SlicerWebSocketHandler(WebSocketHandler):
 
         self.tracker.SetMatrixTransformToParent(m)
         # this method needs to be called to update the efield on the brain:
-        slicer.modules.coil_positioningWidget.onHandlesModified()
+        slicer.modules.SlicerTMSWidget.onHandlesModified()
         # slicer still crashes when the method is called!
