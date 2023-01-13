@@ -18,8 +18,8 @@ class SlicerWebServer:
         self.port = 2016
         self.server = None
         self.logFile = '/tmp/WebServerLogic.log'
-        self.docroot = "/Users/lorainefranke/Documents/github/SlicerTMS/client/SlicerTMS/docroot"
-        # self.docroot = os.path.join(os.path.dirname(slicer.modules.slicertms.path), './docroot')
+        # self.docroot = "/Users/lorainefranke/Documents/github/SlicerTMS/client/SlicerTMS/docroot"
+        self.docroot = os.path.join(os.path.dirname(slicer.modules.slicertms.path), './docroot')
         # self.docroot = data_directory.encode('utf-8')
 
     def start(self):
