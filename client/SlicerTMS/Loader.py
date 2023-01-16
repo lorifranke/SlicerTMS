@@ -38,8 +38,6 @@ class Loader:
         self.showMag = False #switch between magnetic and electric field for visualization
 
     def callMapper(self, param1=None, param2=None):
-        '''
-        '''
         M.Mapper.map(self)
 
     def showFibers(self):
