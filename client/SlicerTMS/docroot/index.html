@@ -7,6 +7,7 @@
     <meta name='apple-mobile-web-app-capable' content='yes'>
     <script src="./three.min.js"></script>
     <link href='./stylesheets/application.css' rel='stylesheet'>
+    <!-- <script src="https://kitware.github.io/vtk-js/lib/javascript/vtk.js"></script> -->
 </head>
 <body>
 <div id="overlay">
@@ -26,9 +27,9 @@
     <p>Click 'Enter AR' to see content</p>
 </main>
 <script type="module">
-    // WebSocket connection
+    // Create WebSocket connection
     let socket = null;
-    console.log(document.location.protocol);
+    // console.log(document.location.protocol);
     if (document.location.protocol === 'https:') {
         socket = new WebSocket("wss://127.0.0.1:2016/websocket");
     }
@@ -83,6 +84,78 @@
     }
 
     function onSessionStarted(session) {
+            socket.send("get_node");
+            socket.onmessage = function(event) {
+                if (event.data === "get_node") {
+                    console.log('received NODE')
+                    // do nothing, the server is acknowledging the message
+                } else {
+                    // let compressed_data = atob(event.data);
+                    // let compressed_data_array = new Uint8Array(compressed_data.length);
+                    // for (let i = 0; i < compressed_data.length; i++) {
+                    //     compressed_data_array[i] = compressed_data.charCodeAt(i);
+                    // }
+                    // let decompressed_data = new TextDecoder().decode(compressed_data_array.buffer);
+                    // console.log(decompressed_data);
+                // Get the binary data from the event
+                // let compressed_data = base64.b64decode(event.data);
+                // let binaryData = new Uint8Array(event.data);
+                console.log(event.data)
+
+                // // Create a vtkPolyData from the binary data
+                // var polyData = vtk.IO.binaryToPolyData(binaryData);
+
+                // // Create a vtkActor from the polyData
+                // var actor = vtk.Rendering.Core.vtkActor.newInstance();
+                // actor.getMapper().setInputData(polyData);
+
+                // // Add the actor to the renderer
+                // renderer.addActor(actor);
+
+                // // Render the scene
+                // renderWindow.render();
+            }
+        };
+        // let mesh;
+        // if(localStorage.getItem("mesh") !== null){
+        //     // use the mesh from the localstorage
+        //     mesh = JSON.parse(localStorage.getItem("mesh"));
+        // }else{
+        //     // send the get_node message
+        //     socket.send("get_node");
+        //     socket.onmessage = function(event) {
+        //         if (event.data === "get_node") {
+        //             // do nothing, the server is acknowledging the message
+        //         } else {
+        //             mesh = JSON.parse(event.data);
+        //             localStorage.setItem("mesh", JSON.stringify(mesh));
+        //         }
+        //     };
+        // }
+        // let mesh;
+        // //check if the mesh is already stored
+        // if(localStorage.getItem("mesh") !== null){
+        //     // get the compressed mesh from the localstorage
+        //     const compressedMesh = localStorage.getItem("mesh");
+        //     //decompress the mesh
+        //     mesh = JSON.parse(pako.inflate(compressedMesh, { to: 'string' }));
+        // }else{
+        //     // send the get_node message
+        //     socket.send("get_node");
+        //     socket.onmessage = function(event) {
+        //         if (event.data === "get_node") {
+        //             // do nothing, the server is acknowledging the message
+        //         } else {
+        //             mesh = JSON.parse(event.data);
+        //             //compress the mesh
+        //             const compressedMesh = pako.deflate(JSON.stringify(mesh), { to: 'string' });
+        //             //store the compressed mesh in the localstorage
+        //             localStorage.setItem("mesh", compressedMesh);
+        //         }
+        //     };
+        // }
+
+
         xrSession = session;
         xrButton.innerHTML = 'Exit AR';
         // Show which type of DOM Overlay got enabled (if any)
@@ -110,19 +183,6 @@
 
         camera = new THREE.PerspectiveCamera();
         camera.matrixAutoUpdate = false;
-
-        // add the coil here:
-
-        // const stlLoader = new THREE.STLLoader();
-        // stlLoader.load("./coil_model.stl", function (geometry) {
-        //     geometry.computeVertexNormals();
-        //     geometry.center();
-        //     const material = new THREE.MeshLambertMaterial({color: 0xEFDFDF});
-        //     const mesh = new THREE.Mesh(geometry, material);
-        //     mesh.scale.multiplyScalar(0.5);
-        //     mesh.position.set(0.1, -1.4, -5);
-        //     scene.add(mesh);
-        // });
     }
 
     function onRequestSessionError(ex) {
@@ -158,7 +218,7 @@
                 m[1].toFixed(3) + ", " + m[5].toFixed(3) + ", " + m[9].toFixed(3) + ", " + m[13].toFixed(3) + "\n" +
                 m[2].toFixed(3) + ", " + m[6].toFixed(3) + ", " + m[10].toFixed(3) + ", " + m[14].toFixed(3) + "\n" +
                 m[3].toFixed(3) + ", " + m[7].toFixed(3) + ", " + m[11].toFixed(3) + ", " + m[15].toFixed(3) + "\n" + currentURL;
-                console.log(m)
+                // console.log(m)
             if (currentPose == null) {
                 currentPose = pose;
                 sendTracker();
@@ -168,6 +228,13 @@
         } else {
             document.getElementById('pose').innerText = "Position: (null pose)";
         }
+
+        //  // Create a Three.js object
+        // let threeObject = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), new THREE.MeshStandardMaterial({color: 0xff0000}));
+
+        // // Add the object to the existing scene
+        // scene.add(threeObject);
+
         renderer.render(scene, camera);
     }
 
