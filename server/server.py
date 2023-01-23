@@ -32,7 +32,7 @@ class ServerTMS():
         self.setFile(f)
         self.getF(self)
 
-        server = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
+        servertms = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
         text_server = pyigtl.OpenIGTLinkServer(port=18945, local_server=True)
         string_message = pyigtl.StringMessage(f, device_name="TextMessage")
         text_server.send_message(string_message)
@@ -90,13 +90,13 @@ class ServerTMS():
 
 
         while True:
-            if not server.is_connected():
+            if not servertms.is_connected():
                 # Wait for client to connect
                 sleep(0.01)
                 # print('not connected')
                 continue
 
-            messages = server.get_latest_messages()
+            messages = servertms.get_latest_messages()
             for message in messages:
                 magvec = message.image
                 magvec = np.transpose(magvec, axes=(2, 1, 0, 3))
@@ -125,7 +125,7 @@ class ServerTMS():
                 outputData = LA.norm(outputData, axis = 3)
 
                 image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
-                server.send_message(image_message)
+                servertms.send_message(image_message)
 
                 # get the execution time
                 elapsed_time = et - st
@@ -145,5 +145,5 @@ if len(sys.argv) > 1:
 else:
     f = '../data/Example1/'
 
-server = ServerTMS(f)
+servertms = ServerTMS(f)
 # server.setFile('../data/Example2/')
