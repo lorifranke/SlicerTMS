@@ -28,7 +28,7 @@ from numpy import linalg as LA
 import time
 
 class ServerTMS():
-    def __init__(self, f = None):
+    def __init__(self, f):
         self.setFile(f)
         self.getF(self)
 
