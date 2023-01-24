@@ -8,9 +8,20 @@ import Mapper as M
 class Loader:
 
     def __init__(self, data_directory):
-
         self.data_directory = data_directory
-        self._graymatter_file = 'gm.stl'
+        self._graymatter_file = 'gm'
+        # the gray matter file can either be .stl or .vtk format:
+        brainModelFile_stl = os.path.join(str(self.data_directory), self._graymatter_file + '.stl')
+        brainModelFile_vtk = os.path.join(str(self.data_directory), self._graymatter_file + '.vtk')
+
+        if os.path.isfile(brainModelFile_stl):
+            brainModelFile = brainModelFile_stl
+        elif os.path.isfile(brainModelFile_vtk):
+            brainModelFile = brainModelFile_vtk
+        else:
+            return
+        self._graymatter_file = os.path.basename(brainModelFile)
+
         self._fiber_file = 'fibers.vtk'
         self._coil_file = 'coil.stl'
         self._coil_scale = 3
@@ -57,8 +68,8 @@ class Loader:
         print('New CNN Image received via PyIgtl')
         M.Mapper.modifyIncomingImage(self)
 
-
-    @staticmethod
+#  this was @staticmethod before?
+    @classmethod
     def loadExample(self, example_path):
 
         print('Your selected Example: ' + example_path)
