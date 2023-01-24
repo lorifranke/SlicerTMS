@@ -24,8 +24,6 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.guiMessages = True
         self.consoleMessages = True
         self.showGMButton = None
-        self.example_path = None
-
 
     def setup(self):
         ScriptedLoadableModuleWidget.setup(self)
@@ -59,7 +57,7 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.loadExampleButton = qt.QPushButton("Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
         # we need to pass the selected example from the command line with the example path:
-        self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self, self.example_path))
+        self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self.example_path))
 
         self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
         # self.fiberButton.checked = False
