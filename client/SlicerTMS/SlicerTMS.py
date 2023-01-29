@@ -53,7 +53,8 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.collapsibleButton.text = "TMS Visualization"
         self.layout.addWidget(self.collapsibleButton)
         self.formLayout = qt.QFormLayout(self.collapsibleButton)
-
+        
+        slicer.modules.tractographydisplay.widgetRepresentation().activateWindow()
         self.loadExampleButton = qt.QPushButton("Load Example", self.collapsibleButton)
         self.formLayout.addRow(self.loadExampleButton)
         # we need to pass the selected example from the command line with the example path:
