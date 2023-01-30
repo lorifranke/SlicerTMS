@@ -133,6 +133,12 @@ class Mapper():
 
         # activate scalars
         brainNode.GetDisplayNode().SetActiveScalarName('ImageScalars')
+        ### if fiber bundle, then scalars need to be set different:
+        fibers = slicer.util.getNode('fibers')
+        fibers.GetDisplayNode().SetColorMode(fibers.GetDisplayNode().colorModeScalarData)
+        fibers.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
+        # # We only want to see the lines of the fibers first, not the tubes:
+        fibers.GetTubeDisplayNode().SetVisibility(False)
         # select color scheme for scalars
         brainNode.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         brainNode.GetDisplayNode().ScalarVisibilityOn()
