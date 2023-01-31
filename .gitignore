@@ -1,7 +1,7 @@
 .DS_Store
 __pycache__/
 .pyc
-
+.gitattributes
 bin/
 build/
 dist/
