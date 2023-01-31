@@ -52,16 +52,27 @@ class Loader:
         M.Mapper.map(self)
 
     def showFibers(self):
-        fiberNode = slicer.util.getNode('fibers')
+        fiberNode1 = slicer.util.getNode('fibers')
         modelNode = slicer.util.getNode('gm')
+        nodes = slicer.mrmlScene.GetNodesByName('FiberBundle')
         if self == 2:
             print("Show Fibers")
-            fiberNode.SetDisplayVisibility(1)
-            modelNode.SetDisplayVisibility(0)
+            if nodes.GetNumberOfItems() > 0:
+                slicer.util.getNode('FiberBundle').SetDisplayVisibility(0)
+                fiberNode1.SetDisplayVisibility(1)
+                modelNode.SetDisplayVisibility(0)
+            else:
+                fiberNode1.SetDisplayVisibility(1)
+                modelNode.SetDisplayVisibility(0)
         elif self == 0:
             print("Show Brain Surface")
-            fiberNode.SetDisplayVisibility(0)
-            modelNode.SetDisplayVisibility(1)
+            if nodes.GetNumberOfItems() > 0:
+                slicer.util.getNode('FiberBundle').SetDisplayVisibility(0)
+                fiberNode1.SetDisplayVisibility(0)
+                modelNode.SetDisplayVisibility(1)
+            else:
+                fiberNode1.SetDisplayVisibility(0)
+                modelNode.SetDisplayVisibility(1)
 
 
     def newImage(self, caller, event):
@@ -91,9 +102,76 @@ class Loader:
         #
 
         fiberModelFile = os.path.join( loader.data_directory, loader._fiber_file )
-        loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
-                                                                slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        loader.fiberNode.SetDisplayVisibility(0)
+        # loader.fiberNode = slicer.modules.models.logic().AddModel(fiberModelFile,
+                                                                # slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
+        # loader.fiberNode.SetDisplayVisibility(0)
+
+        ############### Load fibers for ROI selection ################
+        # fiberNode = slicer.util.getNode('fibers')
+        # fiberBundleNode = slicer.vtkMRMLFiberBundleNode()
+        # fiberBundleNode.SetAndObservePolyData(loader.fiberNode.GetPolyData())
+        loader.fiberNode = slicer.util.loadFiberBundle(fiberModelFile)
+        loader.fiberNode.GetTubeDisplayNode().SetVisibility(False)
+        loader.fiberNode.SetDisplayVisibility(False)
+
+
+        loader.fibers_downsampled = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLFiberBundleNode', 'FiberBundle')
+        loader.fibers_downsampled.SetDisplayVisibility(False)
+
+        ######### Downsampling of the fibers first #############
+        slicer.modules.tractographydownsample.widgetRepresentation().activateWindow()
+        slicer.modules.TractographyDownsampleWidget.inputSelector.addEnabled = True
+        slicer.modules.TractographyDownsampleWidget.inputSelector.setCurrentNode(slicer.util.getNode('fibers'))
+        slicer.modules.TractographyDownsampleWidget.outputSelector.addEnabled = True
+        slicer.modules.TractographyDownsampleWidget.outputSelector.setCurrentNode(loader.fibers_downsampled)
+        slicer.modules.TractographyDownsampleWidget.fiberStepSizeWidget.setValue(5.00)
+        slicer.modules.TractographyDownsampleWidget.fiberPercentageWidget.setValue(2.00)
+        slicer.modules.TractographyDownsampleWidget.fiberMinimumPointsWidget.setValue(3)
+        slicer.modules.TractographyDownsampleWidget.fiberMinimumLengthWidget.setValue(10.00)
+        slicer.modules.TractographyDownsampleWidget.fiberMaximumLengthWidget.setValue(180.00)
+
+        # setting the downsampled fibers as new fibernode for further processing
+        # loader.fiberNode = slicer.util.getNode('FiberBundle')
+
+
+
+        #### Create ROI Node for Fibers ############
+        loader.roi = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLAnnotationROINode', 'ROI')
+        # roi = vtk.vtkSlicerAnnotationsModuleMRML.vtkMRMLAnnotationROINode()
+        # Set size of the ROI:
+        slicer.util.getNode('ROI').SetRadiusXYZ(20.0, 20.0, 20.0)
+        slicer.util.getNode('ROI').SetXYZ(0.0, 0.0, 30.0)
+
+
+        ## FIBER SELECTION ########### this might need to be updated along with the slicer dmri module
+        slicer.modules.tractographydisplay.widgetRepresentation().activateWindow()
+        w = slicer.modules.tractographydisplay.widgetRepresentation()
+        simpleDisplay = slicer.util.findChildren(w, text='Simple Display')[0]
+        # w.setFiberBundleNode(slicer.util.getNode('fibers'))
+        treeView = slicer.util.findChildren(simpleDisplay, name = "TractographyDisplayTreeView")[0]
+        treeView.setCurrentNode(slicer.util.getNode('fibers'))
+        # slicer.util.delayDisplay('update')
+        ww = slicer.util.findChildren(w, className= "*ROI*")[0]
+        ww.enabled
+        combo = slicer.util.findChildren(ww, name = "ROIForFib*Selector")[0]
+        combo.setCurrentNode(slicer.util.getNode('ROI'))
+        wx = slicer.util.findChildren(w, name = "Positive*")[0] # This is the radiobutton for positive ROI
+        if wx.checked == False:
+            wx.click()
+        # ww.updateBundleFromSelection()
+
+        # slicer.qSlicerTractographyDisplayModuleWidget().setFiberBundleNode(slicer.util.getNode('fibers'))
+        # slicer.qSlicerTractographyDisplayModuleWidget().setPercentageOfFibersShown(0.01)
+        # slicer.qSlicerTractographyEditorROIWidget().setAnnotationMRMLNodeForFiberSelection(slicer.util.getNode('ROI'))
+        # slicer.qSlicerTractographyEditorROIWidget().setFiberBundleNode(slicer.util.getNode('fibers'))
+        # slicer.qSlicerTractographyEditorROIWidget().positiveROISelection(1)
+        # slicer.util.getNode('fibers').SetSelectWithAnnotation(1)
+        ######## ALTERNATIVE FOR ACCESSING:
+        # advancedDisplay = slicer.util.findChildren(text='Advanced Display')[0]
+        # fiberDisplay = slicer.util.findChildren(text='Fiber Bundle Selection')[0]
+        # simpleDisplay = slicer.util.findChildren(text='Simple Display')[0]
+        # ss = slicer.util.findChildren(simpleDisplay, name="FiberBundleTableDisplay")[0]
+
 
         #
         # 3. Skin model:
@@ -133,6 +211,7 @@ class Loader:
 
         loader.transformNode = slicer.mrmlScene.AddNode(slicer.vtkMRMLLinearTransformNode())
         loader.coilNode.SetAndObserveTransformNodeID(loader.transformNode.GetID())
+        loader.roi.SetAndObserveTransformNodeID(loader.transformNode.GetID())
         
 
         #
