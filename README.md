@@ -26,20 +26,26 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 <td valign="top" width="800"><b> 4. Install OpenIGTLinkIF extension</b></a><br> Install the Plugin 'SlicerOpenIGTLink' with Slicer's Extension Manager. The data will be transferred from the deep learning model through the built-in 3D Slicer module OpenIGTLinkIF and then visualized with our TMS tool in real time.
 </tr>
 
+
+<tr>
+<td valign="middle" width="200"><img src="https://avatars.githubusercontent.com/u/15898279?s=200&v=4" title="Install Extension" width=150></a></td>
+<td valign="top" width="800"><b> 4. Install SlicerDMRI extension</b></a><br> Install the Plugin 'SlicerDMRI' (http://dmri.slicer.org/) with Slicer's Extension Manager. The tractography data and fiber files will be visualized with this extension and allows for selection of an ROI.
+</tr>
+
 <tr>
 <td valign="middle" width="200"><img src="https://user-images.githubusercontent.com/38534852/204691323-f271a2e1-79fa-4187-b3ed-123129391bce.png" width=150></a></td>
-<td valign="top" width="800"><b> 5. Select your data </b></a><br> You will find a folder called data by navigating to the local cloned SlicerTMS repository. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field, and magnetic field files of the TMS, as well as skin and brain meshes. Also, each folder has a model.pth.tar file which is a pre-trained PyTorch model. You can exchange these files with your own examples and models.
+<td valign="top" width="800"><b> 6. Select your data </b></a><br> You will find a folder called data by navigating to the local cloned SlicerTMS repository. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field, and magnetic field files of the TMS, as well as skin and brain meshes. Also, each folder has a model.pth.tar file which is a pre-trained PyTorch model. You can exchange these files with your own examples and models.
 </tr>
 
 <tr>
 <td valign="middle" width="200"> <img src="https://conda.io/projects/conda/en/latest/_images/conda_logo.svg"> </a></td>
-<td valign="top" width="800"><b> 6. Environment to run the CNN and TMS module </b></a><br> Please make sure that you have the correct environment and libraries to run the neural network. We included an environment.yml file that can be imported into anaconda. Please see the conda website for how to activate an environment: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html 
+<td valign="top" width="800"><b> 7. Environment to run the CNN and TMS module </b></a><br> Please make sure that you have the correct environment and libraries to run the neural network. We included an environment.yml file that can be imported into anaconda. Please see the conda website for how to activate an environment: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html 
 </tr>
 
 <tr>
 <td valign="middle" width="200">
 <img src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
-<td valign="top" width="800"><b> 6. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder and <code>python server.py Example2</code> for Example2. Please do NOT close this window and open 3D Slicer. After opening Slicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
+<td valign="top" width="800"><b> 8. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder and <code>python server.py Example2</code> for Example2. Please do NOT close this window and open 3D Slicer. After opening Slicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
 </tr>
 </table>
 
@@ -47,7 +53,8 @@ Additionally, we will integrate a connection to transfer data between the neuron
 
 ## Demo ##
 ![tms](https://user-images.githubusercontent.com/38534852/204691744-c2ee8451-7f4c-40c3-83a5-c2fd0103f0a7.gif)
-
+#### Mapping of E-field on tractography with ROI selection ####
+<img src="https://user-images.githubusercontent.com/38534852/216507462-fe0fffb4-1f41-4f35-89c0-f5b869b2f945.gif" width="500" alt="SlicerTMS Module with Efield mapped on fiber tracts">
 
 
 ## Affiliations and Sponsors ##
