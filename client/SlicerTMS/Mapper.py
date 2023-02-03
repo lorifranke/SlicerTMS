@@ -133,16 +133,26 @@ class Mapper():
 
         # activate scalars
         brainNode.GetDisplayNode().SetActiveScalarName('ImageScalars')
+        
         ### if fiber bundle, then scalars need to be set different:
         fibers = slicer.util.getNode('fibers')
         fibers.GetDisplayNode().SetColorMode(fibers.GetDisplayNode().colorModeScalarData)
         fibers.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         # # We only want to see the lines of the fibers first, not the tubes:
         fibers.GetTubeDisplayNode().SetVisibility(False)
+
+        ### Same for the downsampled fibers:
+        fibers1 = slicer.util.getNode('FiberBundle')
+        fibers1.GetDisplayNode().SetColorMode(fibers1.GetDisplayNode().colorModeScalarData)
+        fibers1.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
+        # # We only want to see the lines of the fibers first, not the tubes:
+        fibers1.GetTubeDisplayNode().SetVisibility(False)
+
         # select color scheme for scalars
         brainNode.GetDisplayNode().SetAndObserveColorNodeID(slicer.util.getNode('ColdToHotRainbow').GetID())
         brainNode.GetDisplayNode().ScalarVisibilityOn()
         brainNode.GetDisplayNode().SetScalarRange(fMin, fMax)
+
         # color legend for brain scalars:
         colorLegendDisplayNode = slicer.modules.colors.logic().AddDefaultColorLegendDisplayNode(brainNode)
         colorLegendDisplayNode.SetTitleText("EVec")

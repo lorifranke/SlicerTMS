@@ -58,8 +58,8 @@ class Loader:
         if self == 2:
             print("Show Fibers")
             if nodes.GetNumberOfItems() > 0:
-                slicer.util.getNode('FiberBundle').SetDisplayVisibility(0)
-                fiberNode1.SetDisplayVisibility(1)
+                slicer.util.getNode('FiberBundle').SetDisplayVisibility(1)
+                fiberNode1.SetDisplayVisibility(0)
                 modelNode.SetDisplayVisibility(0)
             else:
                 fiberNode1.SetDisplayVisibility(1)
@@ -117,21 +117,24 @@ class Loader:
 
 
         ######### Downsampling of the tractography fibers first -- IF THE FILE IS LARGE e.g. full brain tractography #############
-        # loader.fibers_downsampled = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLFiberBundleNode', 'FiberBundle')
+        loader.fibers_downsampled = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLFiberBundleNode', 'FiberBundle')
         # loader.fibers_downsampled.SetDisplayVisibility(False)
-        # slicer.modules.tractographydownsample.widgetRepresentation().activateWindow()
-        # slicer.modules.TractographyDownsampleWidget.inputSelector.addEnabled = True
-        # slicer.modules.TractographyDownsampleWidget.inputSelector.setCurrentNode(slicer.util.getNode('fibers'))
-        # slicer.modules.TractographyDownsampleWidget.outputSelector.addEnabled = True
-        # slicer.modules.TractographyDownsampleWidget.outputSelector.setCurrentNode(loader.fibers_downsampled)
-        # slicer.modules.TractographyDownsampleWidget.fiberStepSizeWidget.setValue(5.00)
-        # slicer.modules.TractographyDownsampleWidget.fiberPercentageWidget.setValue(1.00)
-        # slicer.modules.TractographyDownsampleWidget.fiberMinimumPointsWidget.setValue(3)
-        # slicer.modules.TractographyDownsampleWidget.fiberMinimumLengthWidget.setValue(10.00)
-        # slicer.modules.TractographyDownsampleWidget.fiberMaximumLengthWidget.setValue(180.00)
+        loader.fibers_downsampled.GetTubeDisplayNode().SetVisibility(False)
+        slicer.modules.tractographydownsample.widgetRepresentation().activateWindow()
+        slicer.modules.TractographyDownsampleWidget.inputSelector.addEnabled = True
+        slicer.modules.TractographyDownsampleWidget.inputSelector.setCurrentNode(slicer.util.getNode('fibers'))
+        slicer.modules.TractographyDownsampleWidget.outputSelector.addEnabled = True
+        slicer.modules.TractographyDownsampleWidget.outputSelector.setCurrentNode(loader.fibers_downsampled)
+        slicer.modules.TractographyDownsampleWidget.fiberStepSizeWidget.setValue(5.00)
+        slicer.modules.TractographyDownsampleWidget.fiberPercentageWidget.setValue(1.00)
+        slicer.modules.TractographyDownsampleWidget.fiberMinimumPointsWidget.setValue(3)
+        slicer.modules.TractographyDownsampleWidget.fiberMinimumLengthWidget.setValue(10.00)
+        slicer.modules.TractographyDownsampleWidget.fiberMaximumLengthWidget.setValue(180.00)
+        slicer.modules.TractographyDownsampleWidget.applyButton.enabled = True
+        slicer.modules.TractographyDownsampleWidget.onApplyButton()
 
         # setting the downsampled fibers as new fibernode for further processing
-        # loader.fiberNode = slicer.util.getNode('FiberBundle')
+        loader.fiberNode = slicer.util.getNode('FiberBundle')
 
 
 
@@ -149,7 +152,7 @@ class Loader:
         simpleDisplay = slicer.util.findChildren(w, text='Simple Display')[0]
         # w.setFiberBundleNode(slicer.util.getNode('fibers'))
         treeView = slicer.util.findChildren(simpleDisplay, name = "TractographyDisplayTreeView")[0]
-        treeView.setCurrentNode(slicer.util.getNode('fibers'))
+        treeView.setCurrentNode(loader.fiberNode)
         # slicer.util.delayDisplay('update')
         ww = slicer.util.findChildren(w, className= "*ROI*")[0]
         ww.enabled
