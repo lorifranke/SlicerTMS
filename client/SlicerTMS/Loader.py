@@ -115,20 +115,20 @@ class Loader:
         loader.fiberNode.SetDisplayVisibility(False)
 
 
-        loader.fibers_downsampled = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLFiberBundleNode', 'FiberBundle')
-        loader.fibers_downsampled.SetDisplayVisibility(False)
 
-        ######### Downsampling of the fibers first #############
-        slicer.modules.tractographydownsample.widgetRepresentation().activateWindow()
-        slicer.modules.TractographyDownsampleWidget.inputSelector.addEnabled = True
-        slicer.modules.TractographyDownsampleWidget.inputSelector.setCurrentNode(slicer.util.getNode('fibers'))
-        slicer.modules.TractographyDownsampleWidget.outputSelector.addEnabled = True
-        slicer.modules.TractographyDownsampleWidget.outputSelector.setCurrentNode(loader.fibers_downsampled)
-        slicer.modules.TractographyDownsampleWidget.fiberStepSizeWidget.setValue(5.00)
-        slicer.modules.TractographyDownsampleWidget.fiberPercentageWidget.setValue(2.00)
-        slicer.modules.TractographyDownsampleWidget.fiberMinimumPointsWidget.setValue(3)
-        slicer.modules.TractographyDownsampleWidget.fiberMinimumLengthWidget.setValue(10.00)
-        slicer.modules.TractographyDownsampleWidget.fiberMaximumLengthWidget.setValue(180.00)
+        ######### Downsampling of the tractography fibers first -- IF THE FILE IS LARGE e.g. full brain tractography #############
+        # loader.fibers_downsampled = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLFiberBundleNode', 'FiberBundle')
+        # loader.fibers_downsampled.SetDisplayVisibility(False)
+        # slicer.modules.tractographydownsample.widgetRepresentation().activateWindow()
+        # slicer.modules.TractographyDownsampleWidget.inputSelector.addEnabled = True
+        # slicer.modules.TractographyDownsampleWidget.inputSelector.setCurrentNode(slicer.util.getNode('fibers'))
+        # slicer.modules.TractographyDownsampleWidget.outputSelector.addEnabled = True
+        # slicer.modules.TractographyDownsampleWidget.outputSelector.setCurrentNode(loader.fibers_downsampled)
+        # slicer.modules.TractographyDownsampleWidget.fiberStepSizeWidget.setValue(5.00)
+        # slicer.modules.TractographyDownsampleWidget.fiberPercentageWidget.setValue(1.00)
+        # slicer.modules.TractographyDownsampleWidget.fiberMinimumPointsWidget.setValue(3)
+        # slicer.modules.TractographyDownsampleWidget.fiberMinimumLengthWidget.setValue(10.00)
+        # slicer.modules.TractographyDownsampleWidget.fiberMaximumLengthWidget.setValue(180.00)
 
         # setting the downsampled fibers as new fibernode for further processing
         # loader.fiberNode = slicer.util.getNode('FiberBundle')
