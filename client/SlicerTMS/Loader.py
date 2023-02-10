@@ -236,13 +236,13 @@ class Loader:
         
 
         # creat magfield vector volumeNode for visualizing rotated RBG-coded magnetic vector field
-        loader.magfieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
+        loader.magfieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
         loader.magfieldNode.SetSpacing(loader.conductivityNode.GetSpacing())
         loader.magfieldNode.SetOrigin(loader.conductivityNode.GetOrigin())
         loader.magfieldNode.SetName('MagVec')
 
         # create nodes for received E-field data from pyigtl 
-        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
+        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
         loader.efieldNode.Copy(loader.magfieldNode)
         loader.efieldNode.SetName('EVec')
 
@@ -266,8 +266,8 @@ class Loader:
         print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
 
         # observer for the icoming IGTL image data
-        loader.pyigtlNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode', 'pyigtl_data')
-        observationTag = loader.pyigtlNode.AddObserver(slicer.vtkMRMLVectorVolumeNode.ImageDataModifiedEvent, loader.newImage)
+        loader.pyigtlNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode', 'pyigtl_data')
+        observationTag = loader.pyigtlNode.AddObserver(slicer.vtkMRMLScalarVolumeNode.ImageDataModifiedEvent, loader.newImage)
 
         # # call one time
         loader.callMapper()
