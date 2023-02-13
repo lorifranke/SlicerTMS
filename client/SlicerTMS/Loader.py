@@ -55,6 +55,7 @@ class Loader:
 
     def showFibers(self):
         fiberNode1 = slicer.util.getNode('fibers')
+        brainTransparentNode = slicer.util.getNode('brainTransparent')
         nodes = slicer.mrmlScene.GetNodesByName('FiberBundle')
         if self == 2:
             print("Show Fibers")
@@ -64,7 +65,7 @@ class Loader:
             else:
                 fiberNode1.SetDisplayVisibility(1)
         elif self == 0:
-            print("Remove")
+            print("Hide Fibers")
             if nodes.GetNumberOfItems() > 0:
                 slicer.util.getNode('FiberBundle').SetDisplayVisibility(0)
                 fiberNode1.SetDisplayVisibility(0)
@@ -73,28 +74,33 @@ class Loader:
 
 
     def showMesh(self):
+        brainTransparentNode = slicer.util.getNode('brainTransparent')
+        fiberNode1 = slicer.util.getNode('fibers')
         modelNode = slicer.util.getNode('gm')
         if self == 2:
-            print("Show Fibers")
+            print("Show Brain Surface")
             modelNode.SetDisplayVisibility(1)
+            fiberNode1.SetDisplayVisibility(0)
+            brainTransparentNode.SetDisplayVisibility(0)
         elif self == 0:
-            print("Remove")
+            print("Hide Brain Surface")
             modelNode.SetDisplayVisibility(0)
 
 
     def showVolumeRendering(self):
-        #modelNode = slicer.util.getNode('gm')
+        modelNode = slicer.util.getNode('gm')
         brainTransparentNode = slicer.util.getNode('brainTransparent')
         pyigtlNode = slicer.util.getNode('pyigtl_data')
 
         if self == 2:
             print("Show volume Rendering")
+            modelNode.SetDisplayVisibility(0)
             brainTransparentNode.SetDisplayVisibility(1)
             pyigtlNode.SetDisplayVisibility(1)
-            ren.showVolumeRendering(pyigtlNode)
+            ren.Rendering.showVolumeRendering(pyigtlNode)
 
         elif self == 0:
-            print("Remove")
+            print("Hide Volume")
             brainTransparentNode.SetDisplayVisibility(0)
             pyigtlNode.SetDisplayVisibility(0)
 
@@ -129,7 +135,8 @@ class Loader:
         brainTransparentDisplayNode = loader.brainTransparentNode.GetDisplayNode()
         brainTransparentDisplayNode.SetOpacity(0.3)
         brainTransparentDisplayNode.SetColor(0.7, 0.7, 0.7)
-        brainTransparentDisplayNode.SetVisibility(False)
+        # brainTransparentDisplayNode.SetVisibility(False)
+        loader.brainTransparentNode.SetDisplayVisibility(False)
         #
         # 2. Fibers:
         #
