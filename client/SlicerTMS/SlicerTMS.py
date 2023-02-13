@@ -60,15 +60,24 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         # we need to pass the selected example from the command line with the example path:
         self.loadExampleButton.clicked.connect(lambda: L.Loader.loadExample(self.example_path))
 
+        self.meshButton = qt.QCheckBox("Show Mesh", self.collapsibleButton)
+        self.meshButton.checked = True
+        self.formLayout.addRow(self.meshButton)
+        self.meshButton.stateChanged.connect(L.Loader.showMesh)
+
+        self.vouleRenderingButton = qt.QCheckBox("Show Volume Rendering", self.collapsibleButton)
+        self.vouleRenderingButton.checked = False
+        self.formLayout.addRow(self.vouleRenderingButton)
+        self.vouleRenderingButton.stateChanged.connect(L.Loader.showVolumeRendering)
+
         self.fiberButton = qt.QCheckBox("Show Fibers", self.collapsibleButton)
-        # self.fiberButton.checked = False
+        self.fiberButton.checked = False
         self.formLayout.addRow(self.fiberButton)
         self.fiberButton.stateChanged.connect(L.Loader.showFibers)
 
+
         self.initialScalarArray = None
-
         self.layout.addStretch(1)
-
 
         ### WEBSERVER ####
         self.collapsibleButton2 = ctk.ctkCollapsibleButton()
