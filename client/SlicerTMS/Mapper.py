@@ -1,9 +1,10 @@
 import os
-import vtk, qt, ctk, slicer
+import vtk, qt, ctk, slicer, sitkUtils
 from slicer.ScriptedLoadableModule import *
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 from vtk.util.numpy_support import numpy_to_vtk
+import SimpleITK as sitk
 import timeit
 
 class Mapper():
@@ -80,6 +81,7 @@ class Mapper():
         DataOut_np_rot = np.matmul(DataOut_np, RotMat_transp)
         # # reshape the numpy array
         DataOut_np_rot = np.reshape(DataOut_np_rot,(xyz[0], xyz[1], xyz[2], 3))
+
         VTK_array = numpy_to_vtk(DataOut_np_rot.ravel(), deep=True, array_type=vtk.VTK_DOUBLE)
         DataOut.GetPointData().SetScalars(VTK_array)
         DataOut.GetPointData().GetScalars().SetNumberOfComponents(3)
@@ -94,7 +96,6 @@ class Mapper():
             stop = timeit.default_timer()
             execution_time = stop - start
             print("Resampling + Mapping Executed in " + str(execution_time) + " seconds.")
-
 
 
     @staticmethod
@@ -164,7 +165,17 @@ class Mapper():
         matrix_ref = vtk.vtkMatrix4x4()
         loader.conductivityNode.GetIJKToRASMatrix(matrix_ref)
         loader.pyigtlNode.ApplyTransformMatrix(matrix_ref)
+
         # this part will need to be done with the resampling (it only maps the incoming pyigtl image to the brain):
         Mapper.mapElectricfieldToMesh(loader.pyigtlNode, loader.modelNode)
         Mapper.mapElectricfieldToMesh(loader.pyigtlNode, loader.fiberNode)
 
+        # Jump to maximum point of E field
+        pyigtl_data_image = sitkUtils.PullVolumeFromSlicer(loader.pyigtlNode)
+        pyigtl_data_array = sitk.GetArrayFromImage(pyigtl_data_image)
+
+        max_idx = np.squeeze(np.where(pyigtl_data_array==pyigtl_data_array.max()))
+        max_point = pyigtl_data_image.TransformIndexToPhysicalPoint([int(max_idx[2]), int(max_idx[1]), int(max_idx[0])])
+        max_point = np.array([-max_point[0], -max_point[1], max_point[2]]) #IJK to RAS
+
+        slicer.vtkMRMLSliceNode.JumpAllSlices(slicer.mrmlScene, *max_point[0:3])

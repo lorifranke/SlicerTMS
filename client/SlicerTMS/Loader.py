@@ -1,7 +1,9 @@
 import os
-import vtk, qt, ctk, slicer
+import vtk, qt, ctk, slicer, sitkUtils
+import SimpleITK as sitk
 from slicer.ScriptedLoadableModule import *
 import numpy as np
+import Rendering as ren
 import Mapper as M
 
 
@@ -53,26 +55,50 @@ class Loader:
 
     def showFibers(self):
         fiberNode1 = slicer.util.getNode('fibers')
-        modelNode = slicer.util.getNode('gm')
         nodes = slicer.mrmlScene.GetNodesByName('FiberBundle')
         if self == 2:
             print("Show Fibers")
             if nodes.GetNumberOfItems() > 0:
                 slicer.util.getNode('FiberBundle').SetDisplayVisibility(1)
                 fiberNode1.SetDisplayVisibility(0)
-                modelNode.SetDisplayVisibility(0)
             else:
                 fiberNode1.SetDisplayVisibility(1)
-                modelNode.SetDisplayVisibility(0)
         elif self == 0:
-            print("Show Brain Surface")
+            print("Remove")
             if nodes.GetNumberOfItems() > 0:
                 slicer.util.getNode('FiberBundle').SetDisplayVisibility(0)
                 fiberNode1.SetDisplayVisibility(0)
-                modelNode.SetDisplayVisibility(1)
             else:
                 fiberNode1.SetDisplayVisibility(0)
-                modelNode.SetDisplayVisibility(1)
+
+
+    def showMesh(self):
+        modelNode = slicer.util.getNode('gm')
+        if self == 2:
+            print("Show Fibers")
+            modelNode.SetDisplayVisibility(1)
+        elif self == 0:
+            print("Remove")
+            modelNode.SetDisplayVisibility(0)
+
+
+    def showVolumeRendering(self):
+        #modelNode = slicer.util.getNode('gm')
+        brainTransparentNode = slicer.util.getNode('brainTransparent')
+        pyigtlNode = slicer.util.getNode('pyigtl_data')
+
+        if self == 2:
+            print("Show volume Rendering")
+            brainTransparentNode.SetDisplayVisibility(1)
+            pyigtlNode.SetDisplayVisibility(1)
+            ren.showVolumeRendering(pyigtlNode)
+
+        elif self == 0:
+            print("Remove")
+            brainTransparentNode.SetDisplayVisibility(0)
+            pyigtlNode.SetDisplayVisibility(0)
+
+
 
 
     def newImage(self, caller, event):
@@ -96,7 +122,14 @@ class Loader:
         brainModelFile = os.path.join( loader.data_directory, loader._graymatter_file )
         loader.modelNode = slicer.modules.models.logic().AddModel(brainModelFile,
                                                                 slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
-        
+
+        loader.brainTransparentNode = slicer.modules.models.logic().AddModel(brainModelFile,
+                                                                slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
+        loader.brainTransparentNode.SetName('brainTransparent')
+        brainTransparentDisplayNode = loader.brainTransparentNode.GetDisplayNode()
+        brainTransparentDisplayNode.SetOpacity(0.3)
+        brainTransparentDisplayNode.SetColor(0.7, 0.7, 0.7)
+        brainTransparentDisplayNode.SetVisibility(False)
         #
         # 2. Fibers:
         #
@@ -135,7 +168,7 @@ class Loader:
 
         # setting the downsampled fibers as new fibernode for further processing
         loader.fiberNode = slicer.util.getNode('FiberBundle')
-
+        loader.fiberNode.GetDisplayNode().SetVisibility(False)
 
 
         #### Create ROI Node for Fibers ############
@@ -182,7 +215,8 @@ class Loader:
         skin = os.path.join( loader.data_directory, loader._skin_file )
         loader.skinNode = slicer.modules.models.logic().AddModel(skin, slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
         skinDisplayNode = loader.skinNode.GetDisplayNode()
-        skinDisplayNode.SetOpacity(0.3)
+        skinDisplayNode.SetColor(0.8, 0.8, 0.8)
+        skinDisplayNode.SetOpacity(0.5)
 
 
         #
@@ -233,7 +267,6 @@ class Loader:
 
         # load conductivity
         loader.conductivityNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._conductivity_file ) )
-        
 
         # creat magfield vector volumeNode for visualizing rotated RBG-coded magnetic vector field
         loader.magfieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
@@ -242,7 +275,7 @@ class Loader:
         loader.magfieldNode.SetName('MagVec')
 
         # create nodes for received E-field data from pyigtl 
-        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode')
+        loader.efieldNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVectorVolumeNode')
         loader.efieldNode.Copy(loader.magfieldNode)
         loader.efieldNode.SetName('EVec')
 
@@ -266,8 +299,29 @@ class Loader:
         print('OpenIGTLink Connector created! \n Check IGT > OpenIGTLinkIF and start external pyigtl server.')
 
         # observer for the icoming IGTL image data
-        loader.pyigtlNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLScalarVolumeNode', 'pyigtl_data')
+        loader.pyigtlNode = slicer.util.loadVolume( os.path.join( loader.data_directory, loader._conductivity_file ) )
+        # loader.pyigtlNode.Copy(loader.enormNode)
+        loader.pyigtlNode.SetName('pyigtl_data')
+
+        # Display setting
+        # conductivityDisplayNode = loader.conductivityNode.GetDisplayNode()
+        # conductivityDisplayNode.SetAndObserveColorNodeID('vtkMRMLColorTableNodeGrey')
+        # conductivityDisplayNode.SetVisibility2D(True)
+
+        pyigtlDisplayNode = loader.pyigtlNode.GetDisplayNode()
+        pyigtlDisplayNode.AutoWindowLevelOff()
+        pyigtlDisplayNode.SetWindowLevelMinMax(0.0, 1.0)
+        pyigtlDisplayNode.SetLowerThreshold(0)
+        pyigtlDisplayNode.SetUpperThreshold(1)
+        pyigtlDisplayNode.SetAndObserveColorNodeID('vtkMRMLColorTableNodeFileColdToHotRainbow.txt')
+
+        slicer.util.setSliceViewerLayers(background=loader.conductivityNode)
+        slicer.util.setSliceViewerLayers(foreground=loader.pyigtlNode)
+        slicer.util.setSliceViewerLayers(foregroundOpacity=0.6)
+        slicer.app.processEvents()  # Dynamic updating scene
+
         observationTag = loader.pyigtlNode.AddObserver(slicer.vtkMRMLScalarVolumeNode.ImageDataModifiedEvent, loader.newImage)
+
 
         # # call one time
         loader.callMapper()
