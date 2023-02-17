@@ -26,12 +26,16 @@ from collections import OrderedDict
 from model import Modified3DUNet
 from numpy import linalg as LA
 import time
+import asyncio
+
+
 
 class ServerTMS():
     def __init__(self, f):
         self.setFile(f)
         self.getF(self)
 
+    async def run_server(self):
         servertms = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
         text_server = pyigtl.OpenIGTLinkServer(port=18945, local_server=True)
         string_message = pyigtl.StringMessage(f, device_name="TextMessage")
@@ -131,8 +135,8 @@ class ServerTMS():
                 elapsed_time = et - st
                 print('Execution time CNN:', elapsed_time, 'seconds')
 
-    def setFile(self, file):
-        self.file = file
+    def setFile(self, f):
+        self.file = f
 
     @staticmethod
     def getF(self):
@@ -145,5 +149,11 @@ if len(sys.argv) > 1:
 else:
     f = '../data/Example1/'
 
-servertms = ServerTMS(f)
+async def main():
+    tmsserver = ServerTMS(f)
+    await tmsserver.run_server()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
 # server.setFile('../data/Example2/')
