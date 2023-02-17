@@ -223,7 +223,7 @@ class Loader:
         loader.skinNode = slicer.modules.models.logic().AddModel(skin, slicer.vtkMRMLStorageNode.CoordinateSystemRAS)
         skinDisplayNode = loader.skinNode.GetDisplayNode()
         skinDisplayNode.SetColor(0.8, 0.8, 0.8)
-        skinDisplayNode.SetOpacity(0.5)
+        skinDisplayNode.SetOpacity(0.35)
 
 
         #
@@ -245,9 +245,12 @@ class Loader:
         markupsPlaneNode.SetNormalWorld([0, 0, -10])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
+        markupsPlaneNode.SetSize(3,3) # or SetPlaneBounds()
         markupsPlaneNode.GetMarkupsDisplayNode().SetHandlesInteractive(True)
         markupsPlaneNode.GetMarkupsDisplayNode().SetRotationHandleVisibility(1)
         markupsPlaneNode.GetMarkupsDisplayNode().SetTranslationHandleVisibility(1)
+        markupsPlaneNode.GetMarkupsDisplayNode().SetOpacity(0.6)
+        markupsPlaneNode.GetMarkupsDisplayNode().SetInteractionHandleScale(1.5)
         markupsPlaneNode.GetDisplayNode().SetSnapMode(slicer.vtkMRMLMarkupsDisplayNode.SnapModeToVisibleSurface)
         markupsPlaneNode.SetDisplayVisibility(1)
         
