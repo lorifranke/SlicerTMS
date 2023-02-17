@@ -245,7 +245,7 @@ class Loader:
         markupsPlaneNode.SetNormalWorld([0, 0, -10])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
-        markupsPlaneNode.SetSize(3,3) # or SetPlaneBounds()
+        markupsPlaneNode.SetSize(10,10) # or SetPlaneBounds()
         markupsPlaneNode.GetMarkupsDisplayNode().SetHandlesInteractive(True)
         markupsPlaneNode.GetMarkupsDisplayNode().SetRotationHandleVisibility(1)
         markupsPlaneNode.GetMarkupsDisplayNode().SetTranslationHandleVisibility(1)
