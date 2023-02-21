@@ -73,6 +73,32 @@ class Loader:
                 fiberNode1.SetDisplayVisibility(0)
 
 
+    def updateMatrix(self):
+        # Create a 4x4 matrix with the values entered by the user
+        matrix = vtk.vtkMatrix4x4()
+        for i in range(3):
+            for j in range(4):
+                value = float(self.matrixInputs[i][j].text.replace(',', '.'))
+                matrix.SetElement(i, j, value)
+            # Set default values for the last row and last column of matrix
+        matrix.SetElement(0, 3, 0.0)
+        matrix.SetElement(1, 3, 0.0)
+        matrix.SetElement(2, 3, 0.0)
+        matrix.SetElement(3, 3, 1.0)
+
+
+        # Get the vtkMRMLMarkupsPlaneNode and update its matrix
+        planeNode = slicer.util.getNode("vtkMRMLMarkupsPlaneNode1")
+        if planeNode is not None:
+            planeNode.ApplyTransformMatrix(matrix)
+            # planeNode.SetNthControlPointOrientationMatrix(0, matrix)
+            # transform1 = vtk.vtkTransform()
+            # transform1.SetMatrix(matrix)
+            # # planeNode.SetMatrixTransformToParent(matrix)
+            # tfN.SetAndObserveTransformToParent(transform1)
+            planeNode.UpdateScene(slicer.mrmlScene)
+
+
     def showMesh(self):
         brainTransparentNode = slicer.util.getNode('brainTransparent')
         fiberNode1 = slicer.util.getNode('fibers')
@@ -103,8 +129,6 @@ class Loader:
             print("Hide Volume")
             brainTransparentNode.SetDisplayVisibility(0)
             pyigtlNode.SetDisplayVisibility(0)
-
-
 
 
     def newImage(self, caller, event):
