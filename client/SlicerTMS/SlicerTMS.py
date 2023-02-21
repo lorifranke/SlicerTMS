@@ -75,6 +75,43 @@ class SlicerTMSWidget(ScriptedLoadableModuleWidget):
         self.formLayout.addRow(self.fiberButton)
         self.fiberButton.stateChanged.connect(L.Loader.showFibers)
 
+        self.layout.addStretch(1)
+
+        # Create grid layout for matrix input field
+        self.collapsibleButton3 = ctk.ctkCollapsibleButton()
+        self.collapsibleButton3.text = "Manual Coil Positioning"
+        self.layout.addWidget(self.collapsibleButton3)
+        self.gridLayout = qt.QGridLayout(self.collapsibleButton3)
+
+        # Create labels for each matrix element
+        labels = ["X", "Y", "Z"]
+        for i in range(3):
+            label = qt.QLabel(labels[i])
+            self.gridLayout.addWidget(label, 0, i+1)
+            label = qt.QLabel(labels[i])
+            self.gridLayout.addWidget(label, i+1, 0)
+
+        # Create line edits for each matrix element
+        self.matrixInputs = []
+        for i in range(3):
+            row = []
+            for j in range(4):
+                matrixInput = qt.QLineEdit()
+                matrixInput.setFixedSize(50, 30)  # Set fixed size for QLineEdit widget
+                row.append(matrixInput)
+                self.gridLayout.addWidget(matrixInput, i+1, j+1)
+                 # Connect the editingFinished signal of each QLineEdit to updateMatrix function
+                matrixInput.editingFinished.connect(lambda: L.Loader.updateMatrix(self))
+            self.matrixInputs.append(row)
+
+        
+        # Create label to display current matrix position
+        self.currentMatrixLabel = qt.QLabel("Current Matrix Position: ", self.collapsibleButton3)
+        self.layout.addWidget(self.currentMatrixLabel)
+        # Create label to display matrix elements as text
+        self.matrixTextLabel = qt.QLabel("", self.collapsibleButton3)
+        self.layout.addWidget(self.matrixTextLabel)
+
 
         self.initialScalarArray = None
         self.layout.addStretch(1)
