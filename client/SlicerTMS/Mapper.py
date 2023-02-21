@@ -16,6 +16,16 @@ class Mapper():
         loader.markupsPlaneNode.GetObjectToWorldMatrix(matrixFromFid)
         loader.transformNode.SetMatrixTransformToParent(matrixFromFid)
         loader.transformNode.UpdateScene(slicer.mrmlScene)
+        # print('Coil Position: ', matrixFromFid)
+
+        # Update matrix text label in Widget:
+        matrixText = ""
+        for i in range(3):
+            for j in range(4):
+                value = matrixFromFid.GetElement(i, j)
+                matrixText += "{:.3f}".format(value) + " "
+            matrixText += "\n"
+        slicer.modules.SlicerTMSWidget.matrixTextLabel.setText(matrixText)
 
 
         if time:
