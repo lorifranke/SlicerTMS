@@ -11,7 +11,6 @@ class Mapper():
 
     @staticmethod
     def map(loader, time=True):
-
         matrixFromFid = vtk.vtkMatrix4x4()
         loader.markupsPlaneNode.GetObjectToWorldMatrix(matrixFromFid)
         loader.transformNode.SetMatrixTransformToParent(matrixFromFid)

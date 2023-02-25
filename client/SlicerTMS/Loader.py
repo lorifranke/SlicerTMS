@@ -265,8 +265,7 @@ class Loader:
 
         # Add a plane to the scene
         markupsPlaneNode = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsPlaneNode', 'Coil')
-        markupsPlaneNode.SetOrigin([0, 0, 110])
-        markupsPlaneNode.SetNormalWorld([0, 0, -10])
+        markupsPlaneNode.SetNormalWorld([0, 0, -1])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
         markupsPlaneNode.SetAxes([.5, 0, 0], [0, .5, 0], [0, 0, .5])
         markupsPlaneNode.SetSize(10,10) # or SetPlaneBounds()
@@ -277,13 +276,21 @@ class Loader:
         markupsPlaneNode.GetMarkupsDisplayNode().SetInteractionHandleScale(1.5)
         markupsPlaneNode.GetDisplayNode().SetSnapMode(slicer.vtkMRMLMarkupsDisplayNode.SnapModeToVisibleSurface)
         markupsPlaneNode.SetDisplayVisibility(1)
-        
-        loader.markupsPlaneNode = markupsPlaneNode
 
-        loader.transformNode = slicer.mrmlScene.AddNode(slicer.vtkMRMLLinearTransformNode())
+        try:
+            loader.transformNavigationNode = slicer.util.getNode("CoilToRefe")
+            markupsPlaneNode.SetOrigin([0, 0, 0])
+
+        except:
+            loader.transformNavigationNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLLinearTransformNode", "NavigationTransform")
+            markupsPlaneNode.SetOrigin([0, 0, 110])
+
+        loader.markupsPlaneNode = markupsPlaneNode
+        loader.transformNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLLinearTransformNode", "HandleTransform")
+
         loader.coilNode.SetAndObserveTransformNodeID(loader.transformNode.GetID())
         loader.roi.SetAndObserveTransformNodeID(loader.transformNode.GetID())
-        
+        loader.markupsPlaneNode.SetAndObserveTransformNodeID(loader.transformNavigationNode.GetID())
 
         #
         # 5. Other stuff
@@ -362,7 +369,7 @@ class Loader:
 
         # # interaction hookup
         loader.markupsPlaneNode.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, loader.callMapper)
-
+        loader.transformNavigationNode.AddObserver(slicer.vtkMRMLTransformableNode.TransformModifiedEvent, loader.callMapper)
         #slicer.mrmlScene.AddObserver(slicer.vtkMRMLScene.NodeAddedEvent, loader.onNodeRcvd)
 
         return loader
