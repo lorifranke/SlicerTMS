@@ -52,7 +52,10 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 Additionally, we will integrate a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices.
 
 ## Demo ##
-![tms](https://user-images.githubusercontent.com/38534852/204691744-c2ee8451-7f4c-40c3-83a5-c2fd0103f0a7.gif)
+
+#### Mapping of E-field on brain surface with 3D and 2D views ####
+<img src="https://user-images.githubusercontent.com/38534852/229613057-88c2eb4e-567a-4207-ae42-cde6bb3d7bb3.gif" width="500">
+
 #### Mapping of E-field on tractography with ROI selection ####
 <img src="https://user-images.githubusercontent.com/38534852/216507462-fe0fffb4-1f41-4f35-89c0-f5b869b2f945.gif" width="500" alt="SlicerTMS Module with Efield mapped on fiber tracts">
 
@@ -68,4 +71,6 @@ Additionally, we will integrate a connection to transfer data between the neuron
 Copyright (c) 2022 The SlicerTMS Developers. SlicerTMS is licensed under General Public License: <a href="https://opensource.org/license/gpl-3-0/" target="_blank">https://opensource.org/license/gpl-3-0/</a>
   
 ## Publications ##
-to appear :-)
+more to appear :-)
+
+DOI: [![DOI](https://zenodo.org/badge/548629306.svg)](https://zenodo.org/badge/latestdoi/548629306)
