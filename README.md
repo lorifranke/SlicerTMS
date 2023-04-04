@@ -68,9 +68,9 @@ Additionally, we will integrate a connection to transfer data between the neuron
 <a href="https://www.nih.gov/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c8/NIH_Master_Logo_Vertical_2Color.png?20130312195925" alt="NIH Funding" width="100"></a>
 
 ## License ##
-Copyright (c) 2022 The SlicerTMS Developers. SlicerTMS is licensed under General Public License: <a href="https://opensource.org/license/gpl-3-0/" target="_blank">https://opensource.org/license/gpl-3-0/</a>
+Copyright (c) 2023 The SlicerTMS Developers. SlicerTMS is licensed under General Public License: <a href="https://opensource.org/license/gpl-3-0/" target="_blank">https://opensource.org/license/gpl-3-0/</a>
   
 ## Publications ##
 more to appear :-)
 
-DOI: [![DOI](https://zenodo.org/badge/548629306.svg)](https://zenodo.org/badge/latestdoi/548629306)
+[![DOI](https://zenodo.org/badge/548629306.svg)](https://zenodo.org/badge/latestdoi/548629306)
