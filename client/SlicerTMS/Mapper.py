@@ -16,7 +16,6 @@ class Mapper():
         loader.markupsPlaneNode.GetObjectToWorldMatrix(matrixFromFid)
         loader.transformNode.SetMatrixTransformToParent(matrixFromFid)
         loader.transformNode.UpdateScene(slicer.mrmlScene)
-        # print('Coil Position: ', matrixFromFid)
 
         # Update matrix text label in Widget:
         matrixText = ""
@@ -105,8 +104,8 @@ class Mapper():
         if time:
             stop = timeit.default_timer()
             execution_time = stop - start
-            print("Resampling + Mapping Executed in " + str(execution_time) + " seconds.")
-
+            # print("Resampling + Mapping Executed in " + str(execution_time) + " seconds.")
+            print(execution_time)
 
     @staticmethod
     def mapElectricfieldToMesh(scalarNode, brainNode):
