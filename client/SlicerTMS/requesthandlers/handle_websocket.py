@@ -95,16 +95,28 @@ class SlicerWebSocketHandler(WebSocketHandler):
         # self.markup.AddObserver(slicer.vtkMRMLMarkupsNode.PointModifiedEvent, self.onHandlesModified)
         # every time the transform changes execute show evec
 
+        # if transformMatrix:
+        #     for row in range(3):
+        #         for column in range(3):
+        #             m.SetElement(row, column, transformMatrix[3 * row + column])
+        #             m.SetElement(row, column, transformMatrix[3 * row + column])
+        #             m.SetElement(row, column, transformMatrix[3 * row + column])
+
+        # if position:
+        #     for row in range(3):
+        #         m.SetElement(row, 3, position[row])
+
+
         if transformMatrix:
             for row in range(3):
-                for column in range(3):
-                    m.SetElement(row, column, transformMatrix[3 * row + column])
-                    m.SetElement(row, column, transformMatrix[3 * row + column])
-                    m.SetElement(row, column, transformMatrix[3 * row + column])
+                m.SetElement(row, 0, transformMatrix[3 * row + 0])
+                m.SetElement(row, 1, -transformMatrix[3 * row + 1])
+                m.SetElement(row, 2, transformMatrix[3 * row + 2])
 
         if position:
-            for row in range(3):
-                m.SetElement(row, 3, position[row])
+            m.SetElement(0, 3, position[0])
+            m.SetElement(1, 3, -position[2])  # swap y and z components
+            m.SetElement(2, 3, position[1])  
 
         if quaternion:
             qu = vtk.vtkQuaternion['float64']()
@@ -117,6 +129,9 @@ class SlicerWebSocketHandler(WebSocketHandler):
             for row in range(3):
                 for column in range(3):
                     m.SetElement(row, column, m3[row][column])
+
+
+
 
         self.tracker.SetMatrixTransformToParent(m)
         # this method needs to be called to update the efield on the brain:
