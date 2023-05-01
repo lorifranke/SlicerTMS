@@ -5,17 +5,25 @@
     <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
     <meta name='mobile-web-app-capable' content='yes'>
     <meta name='apple-mobile-web-app-capable' content='yes'>
-    <script src="./three.min.js"></script>
+    <!-- <script src="./three.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.15.0/dist/tf.min.js"></script>
+	<!-- Require the peer dependencies of face-landmarks-detection. -->
+	<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+
+	<!-- You must explicitly require a TF.js backend if you're not using the TF.js union bundle. -->
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
     <link href='./stylesheets/application.css' rel='stylesheet'>
-    <script type="text/javascript" src="https://unpkg.com/vtk.js"></script>
-    <!-- <script src="https://kitware.github.io/vtk-js/lib/javascript/vtk.js"></script> -->
+    <script src="https://unpkg.com/vtk.js"></script>
 </head>
 <body>
 <div id="overlay">
     <header>
         <details open>
             <summary>Slicer WebXR Overlay</summary>
-            <p>WebXR TMS Coil <a class="back" href="./index.html">Back</a>
+            <p>WebXR TMS <a class="back" href="./index.html">Back</a>
             </p>
             <div id="session-info"></div>
             <div id="pose"></div>
@@ -24,10 +32,27 @@
         </details>
     </header>
 </div>
+<video id="video" style="display:none;"></video>
 <main style='text-align: center;'>
     <p>Click 'Enter AR' to see content</p>
 </main>
-<script type="module">
+<script type="importmap">
+        {
+            "imports": {
+                "three": "./build/three.module.js",
+                "three/addons/": "./jsm/"
+            }
+        }
+    </script>
+	<script type="module">
+    import * as THREE from 'three';
+    import { VTKLoader } from 'three/addons/loaders/VTKLoader.js';
+    import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+    import { sRGBEncoding } from 'three'; // Import sRGBEncoding constant
+    // console.log(faceLandmarksDetection)
+    import { FaceMeshFaceGeometry } from "./jsm/face.js";
+
+
     // Create WebSocket connection
     let socket = null;
     // console.log(document.location.protocol);
@@ -47,7 +72,13 @@
 
     // WebGL scene globals.
     let gl = null;
-    let camera, scene, renderer;
+    let camera, scene, renderer, controller;
+    let faceTrackingMesh;
+    let width = 0;
+    let height = 0;
+
+    const faceGeometry = new FaceMeshFaceGeometry();
+    console.log("faceGeometry loaded!");
 
     function checkSupportedState() {
         navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
@@ -60,17 +91,17 @@
         });
     }
 
-    function initXR() {
-        if (!window.isSecureContext) {
-            document.getElementById("warning-zone").innerText = "WebXR unavailable due to insecure context";
-        }
+	  function initXR() {
+	    if (!window.isSecureContext) {
+	        document.getElementById("warning-zone").innerText = "WebXR unavailable due to insecure context";
+	    }
 
-        if (navigator.xr) {
-            xrButton.addEventListener('click', onButtonClicked);
-            navigator.xr.addEventListener('devicechange', checkSupportedState);
-            checkSupportedState();
-        }
-    }
+	    if (navigator.xr) {
+	        xrButton.addEventListener('click', onButtonClicked);
+	        navigator.xr.addEventListener('devicechange', checkSupportedState);
+	        checkSupportedState();
+	    }
+	}
 
     function onButtonClicked() {
         if (!xrSession) {
@@ -84,75 +115,193 @@
         }
     }
 
-    function onSessionStarted(session) {
-            socket.send("get_node");
-            socket.onmessage = function(event) {
-                if (event.data === "get_node") {
-                    console.log('received NODE')
-                    // do nothing, the server is acknowledging the message
-                } else {
-                    // let compressed_data = atob(event.data);
-                    // let compressed_data_array = new Uint8Array(compressed_data.length);
-                    // for (let i = 0; i < compressed_data.length; i++) {
-                    //     compressed_data_array[i] = compressed_data.charCodeAt(i);
-                    // }
-                    // let decompressed_data = new TextDecoder().decode(compressed_data_array.buffer);
-                    // console.log(decompressed_data);
-                // Get the binary data from the event
-                // let compressed_data = base64.b64decode(event.data);
-                // let binaryData = new Uint8Array(event.data);
-                // console.log(event.data)
-                // create a new instance of VTKLoader
-                let reader = vtk.IO.Legacy.vtkPolyDataReader.newInstance();
-                const polydata = reader.getOutputData(0);
 
-            }
-        };
-        // let mesh;
-        // if(localStorage.getItem("mesh") !== null){
-        //     // use the mesh from the localstorage
-        //     mesh = JSON.parse(localStorage.getItem("mesh"));
-        // }else{
-        //     // send the get_node message
-        //     socket.send("get_node");
-        //     socket.onmessage = function(event) {
-        //         if (event.data === "get_node") {
-        //             // do nothing, the server is acknowledging the message
-        //         } else {
-        //             mesh = JSON.parse(event.data);
-        //             localStorage.setItem("mesh", JSON.stringify(mesh));
-        //         }
-        //     };
-        // }
+        function loadFaceTrackingMesh() {
+          return new Promise((resolve, reject) => {
+            const loader = new STLLoader();
+            loader.load(
+              "./gm.stl",
+              (geometry) => {
+                geometry.center();
+                geometry.computeVertexNormals();
 
-        xrSession = session;
-        xrButton.innerHTML = 'Exit AR';
-        // Show which type of DOM Overlay got enabled (if any)
-        if (session.domOverlayState) {
-            document.getElementById('session-info').innerHTML = 'DOM Overlay type: ' + session.domOverlayState.type;
+                const material = new THREE.MeshLambertMaterial({ color: 0xffc0cb });
+                const mesh = new THREE.Mesh(geometry, material);
+
+                // Set the initial scale and rotation
+                mesh.scale.set(0.002, 0.002, 0.002);
+                mesh.rotation.x = -Math.PI / 2;
+                mesh.position.set(0, 0, -1);
+
+                // Set the value of faceTrackingMesh and add it to the scene
+                faceTrackingMesh = mesh;
+                scene.add(faceTrackingMesh);
+
+                resolve(mesh);
+              },
+              undefined,
+              (error) => {
+                console.error("An error occurred while loading the model", error);
+                reject(error);
+              }
+            );
+          });
         }
 
-        session.addEventListener('end', onSessionEnded);
-        let canvas = document.createElement('canvas');
-        gl = canvas.getContext('webgl', {xrCompatible: true});
-        session.updateRenderState({baseLayer: new XRWebGLLayer(session, gl)});
 
-        session.requestReferenceSpace('local').then((refSpace) => {
+
+
+      async function initializeAR() {
+        xrButton.innerHTML = 'Exit AR';
+        if (xrSession.domOverlayState) {
+            document.getElementById('session-info').innerHTML = 'DOM Overlay type: ' + xrSession.domOverlayState.type;
+        }
+
+        xrSession.addEventListener('end', onSessionEnded);
+        let canvas = document.createElement('canvas');
+        gl = canvas.getContext('webgl', { xrCompatible: true });
+        xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+
+        await xrSession.requestReferenceSpace('local').then((refSpace) => {
             xrRefSpace = refSpace;
-            session.requestAnimationFrame(onXRFrame);
+            xrSession.requestAnimationFrame(onXRFrame);
         });
-        renderer = new THREE.WebGLRenderer({
-            alpha: true,
-            preserveDrawingBuffer: true,
-            canvas: canvas,
-            context: gl
-        });
-        renderer.xr.enabled = true;
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera();
-        camera.matrixAutoUpdate = false;
+        renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, // Make the background of the canvas transparent
+            preserveDrawingBuffer: true,
+            canvas: canvas, context: gl
+        });
+
+        renderer.xr.enabled = true;
+        renderer.xr.setReferenceSpaceType('local');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding; // Set the output encoding to sRGB
+
+        // Add an ambient light to the scene
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // Add a directional light to the scene
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 10);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
+
+        // camera = new THREE.OrthographicCamera(1, 1, 1, 1, -1000, 1000);
+        camera.updateProjectionMatrix();
+        camera.matrixAutoUpdate = true;
+
+        controller = renderer.xr.getController( 0 );
+        scene.add( controller );
+        window.addEventListener("resize", () => {resize();});
+
+        // Load the 3D object and add it to the scene
+        try {
+            await loadFaceTrackingMesh();
+        } catch (error) {
+            console.error('Error loading 3D object:', error);
+        }
+
+        initFaceTracking(renderer, camera);
     }
+
+      function onSessionStarted(session) {
+          xrSession = session;
+          initializeAR();
+      }
+
+
+
+
+    async function initFaceTracking(renderer, camera) {
+        const video = document.getElementById('video');
+        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        video.srcObject = stream;
+        await video.play();
+
+        if (width !== video.videoWidth || height !== video.videoHeight) {
+          const w = video.videoWidth;
+          const h = video.videoHeight;
+          camera.left = -0.5 * w;
+          camera.right = 0.5 * w;
+          camera.top = 0.5 * h;
+          camera.bottom = -0.5 * h;
+          camera.updateProjectionMatrix();
+          width = w;
+          height = h;
+          resize();
+          faceGeometry.setSize(w, h);
+        }
+
+        // const w = video.videoWidth;
+        // const h = video.videoHeight;
+        console.log('Video set up!')
+        // faceGeometry.setSize(w, h);
+
+        // const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
+        // const detectorConfig = {
+        //     runtime: 'mediapipe', // or 'tfjs'
+        //     solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+        // };
+        // const detector = await faceLandmarksDetection.createDetector(model, detectorConfig);
+        // load facemesh model
+        const model = await facemesh.load({ maxFaces: 1 });
+
+        async function detectFaces() {
+        const predictions = await model.estimateFaces(video);
+
+              if (predictions.length > 0) {
+                faceGeometry.update(predictions[0], false);
+                console.log(faceGeometry)
+
+                const track = faceGeometry.track(151, 107, 336);
+
+                // Calculate the new position in world coordinates
+                const updatedPosition = new THREE.Vector3(track.position.x, track.position.y, track.position.z);
+                updatedPosition.multiplyScalar(0.001); // Scale down the position values
+                updatedPosition.z = -updatedPosition.z; // Flip the Z-axis
+
+                // Update the faceTrackingMesh position
+                faceTrackingMesh.position.copy(updatedPosition);
+
+                console.log('this is position:', track.position);
+                console.log('facemesh:', faceTrackingMesh.position);
+                // Increase the scaling factor
+                // Update the scale of the 3D object based on the calculated scale factors
+                // faceTrackingMesh.scale.set(0.002, 0.002, 0.002);
+
+                faceTrackingMesh.rotation.setFromRotationMatrix(track.rotation);
+              }
+
+        requestAnimationFrame(detectFaces);
+      }
+
+          detectFaces();
+      }
+
+    function resize() {
+        const videoAspectRatio = width / height;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const windowAspectRatio = windowWidth / windowHeight;
+        let adjustedWidth;
+        let adjustedHeight;
+        if (videoAspectRatio > windowAspectRatio) {
+          adjustedWidth = windowWidth;
+          adjustedHeight = windowWidth / videoAspectRatio;
+        } else {
+          adjustedWidth = windowHeight * videoAspectRatio;
+          adjustedHeight = windowHeight;
+        }
+        renderer.setSize(adjustedWidth, adjustedHeight);
+        camera.aspect = videoAspectRatio;
+        camera.updateProjectionMatrix();
+    }
+
 
     function onRequestSessionError(ex) {
         alert("Failed to start immersive AR session.");
@@ -174,7 +323,6 @@
         let session = frame.session;
         session.requestAnimationFrame(onXRFrame);
         gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer);
-
         // retrieve pose of device:
         let pose = frame.getViewerPose(xrRefSpace);
         if (pose) {
@@ -197,13 +345,6 @@
         } else {
             document.getElementById('pose').innerText = "Position: (null pose)";
         }
-
-        //  // Create a Three.js object
-        // let threeObject = new THREE.Mesh(new THREE.BoxGeometry(100, 100, 100), new THREE.MeshStandardMaterial({color: 0xff0000}));
-
-        // // Add the object to the existing scene
-        // scene.add(threeObject);
-
         renderer.render(scene, camera);
     }
 
@@ -213,17 +354,16 @@
         }
         let pose = currentPose;
         if (pose) {
-            // let putURL = "slicer/tracking";
             let putURL ="";
             const p = pose.transform.position;
             const o = pose.transform.orientation;
             const m = pose.transform.matrix;
-
+            // synchronizes the phone position correctly with the coil:
+            let q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+            let newO = q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2));
             putURL += `?p=${1000 * p.x},${1000 * p.y},${1000 * p.z}`;
-            putURL += `&q=${o.w},${o.x},${o.y},${o.z}`;
+            putURL += `&q=${newO.w},${newO.x},${newO.y},${newO.z}`;
             let ma = `${m}`;
-            // console.log(putURL);
-            // socket.send(ma);
             socket.send(putURL);
             currentURL = putURL;
         }

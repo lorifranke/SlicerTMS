@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Brain AR with Threejs</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	    <meta name='mobile-web-app-capable' content='yes'>
+	    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <!-- <link href='./stylesheets/application.css' rel='stylesheet'> -->
+    	<script src="https://unpkg.com/vtk.js"></script>
+		<link type="text/css" rel="stylesheet" href="base.css">
+	</head>
+	<body>
+		<script type="importmap">
+        {
+            "imports": {
+                "three": "./build/three.module.js",
+                "three/addons/": "./jsm/"
+            }
+        }
+    </script>
+	<script type="module">
+		    import * as THREE from 'three';
+		    import { VTKLoader } from 'three/addons/loaders/VTKLoader.js';
+		    import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+
+			// Create WebSocket connection
+		    let socket = null;
+		    // console.log(document.location.protocol);
+		    if (document.location.protocol === 'https:') {
+		        socket = new WebSocket("wss://127.0.0.1:2016/websocket");
+		    }
+		    console.log('socket created!')
+		    socket.onerror = function (error) {
+		        alert(`[error] ${error.message}`);
+		    };
+
+			var container;
+			var camera, scene, renderer;
+			var controller;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+
+				var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				light.position.set( 0.5, 1, 0.25 );
+				scene.add( light );
+
+				// renderer
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+				//
+
+				document.body.appendChild( ARButton.createButton( renderer ) );
+				const loader = new STLLoader();
+				console.log('NEW STL Loader initialized')
+		        loader.load("./gm.stl", function (geometry) {
+					geometry.center();
+					geometry.computeVertexNormals();
+					console.log(geometry)
+					const material = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+					const mesh = new THREE.Mesh(geometry, material);
+					mesh.position.set( 0, 0, -2 ).applyMatrix4( controller.matrixWorld ); // position the mesh
+					mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+					mesh.scale.multiplyScalar(0.003);
+					//Rotating mesh by 90 degree in X axis.
+					mesh.rotateX( -Math.PI / 2 );
+					scene.add( mesh );
+		        });
+
+
+
+				controller = renderer.xr.getController( 0 );
+				// controller.addEventListener( 'select', onSelect );
+				scene.add( controller );
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				renderer.setAnimationLoop( render );
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+			}
+
+		</script>
+	</body>
+</html>
