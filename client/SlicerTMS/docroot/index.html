@@ -76,6 +76,8 @@
     let faceTrackingMesh;
     let width = 0;
     let height = 0;
+    let prevPosition = new THREE.Vector3();
+    let prevQuaternion = new THREE.Quaternion();
 
     const faceGeometry = new FaceMeshFaceGeometry();
     console.log("faceGeometry loaded!");
@@ -129,7 +131,7 @@
                 const mesh = new THREE.Mesh(geometry, material);
 
                 // Set the initial scale and rotation
-                mesh.scale.set(0.002, 0.002, 0.002);
+                mesh.scale.set(0.02, 0.02, 0.02);
                 mesh.rotation.x = -Math.PI / 2;
                 mesh.position.set(0, 0, -1);
 
@@ -162,7 +164,7 @@
         gl = canvas.getContext('webgl', { xrCompatible: true });
         xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
 
-        await xrSession.requestReferenceSpace('local').then((refSpace) => {
+        await xrSession.requestReferenceSpace('viewer').then((refSpace) => {
             xrRefSpace = refSpace;
             xrSession.requestAnimationFrame(onXRFrame);
         });
@@ -188,8 +190,8 @@
         directionalLight.position.set(1, 1, 1);
         scene.add(directionalLight);
 
-        // camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 10);
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 10);
+        // camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
 
         // camera = new THREE.OrthographicCamera(1, 1, 1, 1, -1000, 1000);
         camera.updateProjectionMatrix();
@@ -215,8 +217,6 @@
       }
 
 
-
-
     async function initFaceTracking(renderer, camera) {
         const video = document.getElementById('video');
         const stream = await navigator.mediaDevices.getUserMedia({video: true});
@@ -236,12 +236,8 @@
           resize();
           faceGeometry.setSize(w, h);
         }
-
-        // const w = video.videoWidth;
-        // const h = video.videoHeight;
         console.log('Video set up!')
-        // faceGeometry.setSize(w, h);
-
+        
         // const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
         // const detectorConfig = {
         //     runtime: 'mediapipe', // or 'tfjs'
@@ -258,23 +254,28 @@
                 faceGeometry.update(predictions[0], false);
                 console.log(faceGeometry)
 
-                const track = faceGeometry.track(151, 107, 336);
+                  // Update the brain mesh position and orientation
+                  const rotationMatrix = updateBrainPosition(faceGeometry, camera, faceTrackingMesh);
+                  faceTrackingMesh.rotation.setFromRotationMatrix(rotationMatrix);
+                  faceTrackingMesh.rotation.x = -Math.PI / 2;
 
-                // Calculate the new position in world coordinates
-                const updatedPosition = new THREE.Vector3(track.position.x, track.position.y, track.position.z);
-                updatedPosition.multiplyScalar(0.001); // Scale down the position values
-                updatedPosition.z = -updatedPosition.z; // Flip the Z-axis
+                // const track = faceGeometry.track(151, 107, 336);
 
-                // Update the faceTrackingMesh position
-                faceTrackingMesh.position.copy(updatedPosition);
+                // // Calculate the new position in world coordinates
+                // const updatedPosition = new THREE.Vector3(track.position.x, track.position.y, track.position.z);
+                // updatedPosition.multiplyScalar(0.001); // Scale down the position values
+                // updatedPosition.z = -updatedPosition.z; // Flip the Z-axis
 
-                console.log('this is position:', track.position);
-                console.log('facemesh:', faceTrackingMesh.position);
-                // Increase the scaling factor
-                // Update the scale of the 3D object based on the calculated scale factors
+                // // Update the faceTrackingMesh position
+                // faceTrackingMesh.position.copy(updatedPosition);
+
+                // console.log('this is position:', track.position);
+                // console.log('facemesh:', faceTrackingMesh.position);
+                // // Increase the scaling factor
+                // // Update the scale of the 3D object based on the calculated scale factors
                 // faceTrackingMesh.scale.set(0.002, 0.002, 0.002);
 
-                faceTrackingMesh.rotation.setFromRotationMatrix(track.rotation);
+                // faceTrackingMesh.rotation.setFromRotationMatrix(track.rotation);
               }
 
         requestAnimationFrame(detectFaces);
@@ -282,6 +283,32 @@
 
           detectFaces();
       }
+
+
+    function updateBrainPosition(faceGeometry, camera, faceTrackingMesh) {
+        // Get the faceGeometry's track function output for the given landmarks
+        const track = faceGeometry.track(9, 55, 285);
+
+        // Transform the position from orthographic space to perspective space
+        const projectedPosition = new THREE.Vector3().copy(track.position).unproject(camera);
+
+        // Scale down the projected position to match the brain mesh size
+        projectedPosition.multiplyScalar(0.9);
+
+        // Interpolate the position for smoother movement
+        prevPosition.lerp(projectedPosition, 0.1);
+        faceTrackingMesh.position.set(prevPosition.x, prevPosition.y, prevPosition.z - 10);
+
+        // Update the brain mesh orientation
+        const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(track.rotation);
+        prevQuaternion.slerp(targetQuaternion, 0.1);
+        faceTrackingMesh.quaternion.copy(prevQuaternion);
+        faceTrackingMesh.rotation.x = -Math.PI / 2;
+
+        // Return the rotation matrix
+        return track.rotation;
+      }
+
 
     function resize() {
         const videoAspectRatio = width / height;

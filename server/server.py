@@ -8,6 +8,7 @@ Receive dA/dt field from 3DSlicer, predict the E-field and send data back to 3DS
 import pyigtl  # pylint: disable=import-error
 import os
 import sys
+import asyncio
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 from math import cos, sin, pi
 from time import sleep
@@ -34,6 +35,7 @@ class ServerTMS():
     def __init__(self, f):
         self.setFile(f)
         self.getF(self)
+        self.stop_server = False
 
     async def run_server(self):
         servertms = pyigtl.OpenIGTLinkServer(port=18944, local_server=True)
@@ -92,8 +94,7 @@ class ServerTMS():
         print('Image shape:', cond_data.shape)
 
 
-
-        while True:
+        while not self.stop_server:
             if not servertms.is_connected():
                 # Wait for client to connect
                 sleep(0.01)
@@ -118,7 +119,6 @@ class ServerTMS():
                 st = time.time()
                 inputData_gpu = torch.from_numpy(inputData).to(device)
                 #measure end time of cnn execution
-                et = time.time()
                 
                 outputData = net(inputData_gpu.float())
                 outputData = outputData.cpu()
@@ -131,9 +131,15 @@ class ServerTMS():
                 image_message = pyigtl.ImageMessage(outputData, device_name="pyigtl_data")
                 servertms.send_message(image_message)
 
+                et = time.time()
+
                 # get the execution time
                 elapsed_time = et - st
-                print('Execution time CNN:', elapsed_time, 'seconds')
+                # print('Execution time CNN:', elapsed_time, 'seconds')
+                print(elapsed_time)
+
+    async def stop(self):
+        self.stop_server = True
 
     def setFile(self, f):
         self.file = f
@@ -154,6 +160,9 @@ async def main():
     await tmsserver.run_server()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Server interrupted by user. Stopping...")
 
 # server.setFile('../data/Example2/')
