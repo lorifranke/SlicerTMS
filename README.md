@@ -73,4 +73,14 @@ Copyright (c) 2023 The SlicerTMS Developers. SlicerTMS is licensed under General
 ## Publications ##
 more to appear :-)
 
+Please cite us here:
+```
+@article{franke2023slicertms,
+  title={SlicerTMS: Interactive Real-time Visualization of Transcranial Magnetic Stimulation using Augmented Reality and Deep Learning},
+  author={Franke, Loraine and Park, Tae Young and Luo, Jie and Pieper, Steve and Ning, Lipeng and Haehn, Daniel},
+  journal={arXiv preprint arXiv:2305.06459},
+  year={2023}
+}
+```
+
 [![DOI](https://zenodo.org/badge/548629306.svg)](https://zenodo.org/badge/latestdoi/548629306)
