@@ -38,7 +38,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 </tr>
 
 <tr>
-<td valign="middle" width="200"> <img src="https://conda.io/projects/conda/en/latest/_images/conda_logo.svg"> </a></td>
+<td valign="middle" width="200"> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Conda_logo.svg/2560px-Conda_logo.svg.png"> </a></td>
 <td valign="top" width="800"><b> 7. Environment to run the CNN and TMS module </b></a><br> Please make sure that you have the correct environment and libraries to run the neural network model. You will need to configure your libraries according to you GPU (if you don't have a GPU, the model will run by default on your CPU). We included an environment.yml file that can be imported into anaconda. If you create your own environment, make sure to install the libraries vtk, pyigtl and nibabel. Please also see the conda website for how to activate an environment: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html 
 </tr>
 
