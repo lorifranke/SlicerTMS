@@ -50,7 +50,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 </tr>
 </table>
 
-Additionally, we will integrate a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices.
+Additionally, we will integrate a connection to transfer data between the neuronavigation platform 3D Slicer and a web browser using secure WebSockets. This web-based application simulates the brain with an interactive TMS-coil in augmented reality using WebXR-enabled devices. You will need an Android Phone that supports AR core for this. WebXR needs https, so either generate local certificate (https://blog.anvileight.com/posts/simple-python-http-server/) and make modifications in the WebServer.py file. Your computer/device that runs SlicerTMS needs to be in the same network as the phone device. You then need to start the WebServer inside SlicerTMS with the button. On the phone open your web broser and navigate to https://localhost:2016 by replacing localhost with your IP address. Alternatively you wish to use a USB cable to connect to the device running SlicerTMS (dev mode). For USB: On the phone: Enable Developer tools (https://developer.android.com/studio/debug/dev-options) and USB debugging (description here: https://developer.chrome.com/docs/devtools/remote-debugging/), then run chrome://inspect#devices in the browser on your computer and it should detect USB connected devices.
 
 ## Demo ##
 
