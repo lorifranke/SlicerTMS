@@ -34,7 +34,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 
 <tr>
 <td valign="middle" width="200"><img src="https://user-images.githubusercontent.com/38534852/204691323-f271a2e1-79fa-4187-b3ed-123129391bce.png" width=150></a></td>
-<td valign="top" width="800"><b> 6. Select your data </b></a><br> You will find a folder called data by navigating to the local cloned SlicerTMS repository. The current version contains two different patient examples, Example1 and Example2. The example folders contain the coils, electric field, and magnetic field files of the TMS, as well as skin and brain meshes. Also, each folder has a model.pth.tar file which is a pre-trained PyTorch model. You can exchange these files with your own examples and models.
+<td valign="top" width="800"><b> 6. Select your data </b></a><br> You will find a folder called data by navigating to the local cloned SlicerTMS repository. The current version contains a patient examples, Example1. The example folders contain the coils, electric field, and magnetic field files of the TMS, as well as skin and brain meshes. Also, each folder has a model.pth.tar file which is a pre-trained PyTorch model. You can exchange these files with your own examples and models. If you encounter issues with Example 1, whch might happen because the files might be too large for github, please download another folder called Example4 provided here and put it into your data folder: https://drive.google.com/drive/folders/1B5km0f9KaJ622DLrdA2nTg-NmOrpbkeS?usp=drive_link
 </tr>
 
 <tr>
@@ -45,7 +45,8 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 <tr>
 <td valign="middle" width="200">
 <img src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
-<td valign="top" width="800"><b> 8. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder and <code>python server.py Example2</code> for Example2. Please do NOT close this window and open 3D Slicer now. After opening 3DSlicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
+<td valign="top" width="800"><b> 8. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder (or <code>python server.py Example2</code> for Example2 etc)
+  . If you downloaded the Example 4 from the Google drive and put it into the data folder, then you can run it with <code>python3 server.py Example4</code>. Please do NOT close the terminal window and open 3D Slicer now. After opening 3DSlicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
 </tr>
 </table>
 
