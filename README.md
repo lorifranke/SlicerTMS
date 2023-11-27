@@ -8,7 +8,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 <table>
 <tr>
 <td valign="middle" width="200"><a href="https://slicer.org"><img src="https://www.slicer.org/assets/img/3D-Slicer-Mark.svg" title="Download Slicer here!" width=150></a></td>
-<td valign="top" width="800"><b> 1. 3D Slicer</b></a><br> Download the free, open-source neuronavigation software 3D Slicer from http://slicer.org for your OS. The current stable version is 5.0.3. SlicerTMS will only work with the newest Slicer version. Slicer documentation can be found here as well: https://slicer.readthedocs.io/
+<td valign="top" width="800"><b> 1. 3D Slicer</b></a><br> Download the free, open-source neuronavigation software 3D Slicer from http://slicer.org for your OS. SlicerTMS will only work with 5.0.3 or newer version. Slicer documentation can be found here as well: https://slicer.readthedocs.io/
 </tr>
 
 <tr>
