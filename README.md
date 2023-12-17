@@ -64,7 +64,7 @@ Additionally, we will integrate a connection to transfer data between the neuron
 ## Affiliations and Sponsors ##
 <a href="https://www.brighamandwomens.org/"><img src="https://www.brighamandwomens.org/assets/BWH/core/sprites/vectors/bwh-logo.svg" alt="Brigham and Womens Hospital" width="200"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="http://hms.harvard.edu"><img src="http://xtk.github.io/hms_logo.png" alt="Harvard Medical School" title="Harvard Medical School" width="200"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="https://www.umb.edu"><img src="https://www.umb.edu/assets/images/UMASSB0STON_ID_blue.png?1560890493" width="80" ></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://www.umb.edu"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/UMass_Boston_logo.png" width="80" ></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://isomics.com/"><img src="https://isomics.com/isomics-logo-text-horizontal-700.png" alt="Isomics" title="Isomics" width="150"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://www.nih.gov/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c8/NIH_Master_Logo_Vertical_2Color.png?20130312195925" alt="NIH Funding" width="100"></a>
 
