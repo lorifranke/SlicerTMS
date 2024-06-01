@@ -8,14 +8,17 @@ n2l = lambda n: list(n)
 
 
 class Rendering:
-    
+    def __init__(self, config=None):
+        self.config = config
+
+    @staticmethod
     def showVolumeRenderingCT(volumeNode):
         volRenLogic = slicer.modules.volumerendering.logic()
         displayNode = volRenLogic.CreateDefaultVolumeRenderingNodes(volumeNode)
         displayNode.SetVisibility(True)
         displayNode.GetVolumePropertyNode().Copy(volRenLogic.GetPresetByName('CT-Chest-Contrast-Enhanced'))
 
-
+    @staticmethod
     def showVolumeRendering(volumeNode):
         print(os.path.dirname(__file__))
 
