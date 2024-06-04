@@ -7,11 +7,12 @@ from vtk.util.numpy_support import numpy_to_vtk
 import SimpleITK as sitk
 import timeit
 
-class Mapper():
+class Mapper:
+    def __init__(self, config=None):
+        self.config = config
 
-    @staticmethod
-    def map(loader, time=True):
-
+    @classmethod
+    def map(cls, loader, time=True):
         matrixFromFid = vtk.vtkMatrix4x4()
         loader.markupsPlaneNode.GetObjectToWorldMatrix(matrixFromFid)
         loader.transformNode.SetMatrixTransformToParent(matrixFromFid)
@@ -22,17 +23,13 @@ class Mapper():
         for i in range(3):
             for j in range(4):
                 value = matrixFromFid.GetElement(i, j)
-                matrixText += "{:.3f}".format(value) + " "
+                matrixText += "{:.3f} ".format(value)
             matrixText += "\n"
         slicer.modules.SlicerTMSWidget.matrixTextLabel.setText(matrixText)
 
-
         if time:
             start = timeit.default_timer()
-
         # the update transform based on the old transfrom
-
-        
         # rotate the scalar magnetic field (magnorm)
 
         # if loader.showMag:  #only show scalar magnetic (magnorm) field
