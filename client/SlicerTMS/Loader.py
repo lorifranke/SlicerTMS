@@ -1,7 +1,7 @@
 import os
 import vtk, qt, ctk, slicer, sitkUtils
 import SimpleITK as sitk
-from slicer.ScriptedLoadableModule import *
+# from slicer.ScriptedLoadableModule import *
 import numpy as np
 import Rendering as ren
 import Mapper as M
@@ -51,7 +51,7 @@ class Loader:
         self.showMag = False #switch between magnetic and electric field for visualization
 
     def callMapper(self, param1=None, param2=None):
-        M.Mapper.map(self)
+        M.Mapper.map(self, time=True)
 
     def showFibers(self):
         fiberNode1 = slicer.util.getNode('fibers')
@@ -208,7 +208,7 @@ class Loader:
         # Set size of the ROI:
         slicer.util.getNode('ROI').SetRadiusXYZ(20.0, 20.0, 20.0)
         slicer.util.getNode('ROI').SetXYZ(0.0, 0.0, 30.0)
-        slicer.util.getNode('ROI').GetDisplayNode().SetVisibility(False)
+        # slicer.util.getNode('ROI').GetDisplayNode().SetVisibility(False)
         slicer.util.getNode('ROI').SetDisplayVisibility(False)
 
         ## FIBER SELECTION ########### this might need to be updated along with the slicer dmri module
