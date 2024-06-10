@@ -18,7 +18,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 
 <tr>
 <td valign="middle" width="200"><img src="https://docs.monai.io/projects/label/en/latest/_images/monai-label-plugin-favorite-modules-1.png" title="Install SlicerTMS"></a></td>
-<td valign="top" width="800"><b> 3. Install SlicerTMS extension in 3DSlicer</b></a><br> Start Slicer. Go to Edit --> Application Settings --> Developer --> Check the enable developer mode. Then, Go to Developer tools --> Extension Wizard --> Click Select the extension and select the cloned repository folder with the SlicerTMS.py file from your local computer. Alternatively, you can install SlicerTMS in the Application settings under Modules. You can add the path to the application by clicking the two arrows on the right of the window and selecting 'Add'.
+<td valign="top" width="800"><b> 3. Install SlicerTMS extension in 3DSlicer</b></a><br> Start Slicer. Go to Edit --> Application Settings --> Developer --> Check the enable developer mode. Then, Go to Developer tools (also in settings now with newer version) --> Extension Wizard --> Click Select the extension and select the cloned repository folder with the SlicerTMS.py file from your local computer. Alternatively, you can install SlicerTMS in the Application settings under Modules. You can add the path to the application by clicking the two arrows on the right of the window and selecting 'Add'.
 </tr>
 
 <tr>
@@ -45,8 +45,7 @@ Transcranial magnetic stimulation (TMS) requires accurate placement of the TMS c
 <tr>
 <td valign="middle" width="200">
 <img src="https://user-images.githubusercontent.com/38534852/204690660-075547c3-0ebe-4dc6-bc5f-7aa5ed595e64.png"></a></td>
-<td valign="top" width="800"><b> 8. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder (or <code>python server.py Example2</code> for Example2 etc)
-  . If you downloaded the Example 4 from the Google drive and put it into the data folder, then you can run it with <code>python3 server.py Example4</code>. Please do NOT close the terminal window and open 3D Slicer now. After opening 3DSlicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select TMS --> Slicer TMS Module.
+<td valign="top" width="800"><b> 8. Run Slicer TMS </b></a><br> Open your command line and navigate to the folder <code>SlicerTMS/server</code>. After the correct libraries have been installed in the environment, start the CNN model prediction by typing <code>python server.py Example1</code> to run the data from the Example1 folder (or <code>python server.py Example2</code> for Example2, or <code>python server.py Example3</code> for Example3, etc. if you have multiple subjects). Please do NOT close the terminal window and open 3D Slicer now. After opening 3DSlicer navigate to the dropdown menu <em>Welcome to Slicer</em> and select the module TMS --> Slicer TMS Module and then click on <em>Load Example</em>.
 </tr>
 </table>
 
