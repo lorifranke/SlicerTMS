@@ -71,10 +71,11 @@ Additionally, we will integrate a connection to transfer data between the neuron
 Copyright (c) 2023 The SlicerTMS Developers. SlicerTMS is licensed under General Public License: <a href="https://opensource.org/license/gpl-3-0/" target="_blank">https://opensource.org/license/gpl-3-0/</a>
   
 ## Publications ##
-more to appear :-)
 
-Please cite us here:
-```
+News: SlicerTMS accepted at MICCAI 2024 - to appear!
+
+Please cite us here (current version):
+ ```
 @article{franke2023slicertms,
   title={SlicerTMS: Interactive Real-time Visualization of Transcranial Magnetic Stimulation using Augmented Reality and Deep Learning},
   author={Franke, Loraine and Park, Tae Young and Luo, Jie and Pieper, Steve and Ning, Lipeng and Haehn, Daniel},
@@ -82,5 +83,20 @@ Please cite us here:
   year={2023}
 }
 ```
+
+More:
+```
+@article{park2024review,
+  title={A review of algorithms and software for real-time electric field modeling techniques for transcranial magnetic stimulation},
+  author={Park, Tae Young and Franke, Loraine and Pieper, Steve and Haehn, Daniel and Ning, Lipeng},
+  journal={Biomedical Engineering Letters},
+  volume={14},
+  number={3},
+  pages={393--405},
+  year={2024},
+  publisher={Springer}
+}
+```
+
 
 [![DOI](https://zenodo.org/badge/548629306.svg)](https://zenodo.org/badge/latestdoi/548629306)
